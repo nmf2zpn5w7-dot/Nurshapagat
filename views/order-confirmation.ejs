@@ -1,0 +1,52 @@
+<%- include('partials/head') %>
+
+<main class="oc-page site-wrap">
+  <section class="oc-card">
+    <div class="oc-top">
+      <div class="oc-icon"><i class="fa-solid fa-check"></i></div>
+      <div class="oc-title">
+        <h1><%= pick(locale, "Заказ оформлен", "Тапсырыс рәсімделді") %></h1>
+        <p class="oc-sub">
+          <%= pick(locale, "Номер заказа", "Тапсырыс нөмірі") %>:
+          <strong>DH-<%= String(order.id).padStart(4, "0") %></strong>
+        </p>
+      </div>
+    </div>
+
+    <div class="oc-grid">
+      <div class="oc-block">
+        <h2><%= pick(locale, "Детали", "Мәлімет") %></h2>
+        <div class="oc-rows">
+          <div><span><%= pick(locale, "Сумма", "Сома") %></span><strong><%= formatKzt(order.total) %></strong></div>
+          <div><span><%= pick(locale, "Доставка", "Жеткізу") %></span><strong><%= order.delivery_method === 'express' ? pick(locale, "Экспресс", "Экспресс") : (order.delivery_method === 'standard' ? pick(locale, "Стандарт", "Стандарт") : pick(locale, "Самовывоз", "Алып кету")) %></strong></div>
+          <div><span><%= pick(locale, "Оплата", "Төлем") %></span><strong><%= order.payment_method === 'kaspi_qr' ? "Kaspi QR" : (order.payment_method === 'installments' ? ("Kaspi " + pick(locale, "Рассрочка", "Бөліп төлеу")) : pick(locale, "Карта", "Карта")) %></strong></div>
+          <div><span><%= pick(locale, "Статус", "Мәртебе") %></span><strong><%= order.payment_status === 'paid' ? pick(locale, "Оплачено", "Төленді") : (order.payment_status === 'pending' ? pick(locale, "Ожидает оплаты", "Төлем күтілуде") : pick(locale, "В обработке", "Өңделуде")) %></strong></div>
+        </div>
+        <p class="oc-note">
+          <%= pick(locale, "Мы свяжемся с вами для подтверждения деталей доставки.", "Жеткізу мәліметтерін растау үшін сізбен байланысамыз.") %>
+        </p>
+      </div>
+
+      <div class="oc-block">
+        <h2><%= pick(locale, "Состав заказа", "Тапсырыс құрамы") %></h2>
+        <div class="oc-items">
+          <% items.forEach(it => { %>
+            <div class="oc-item">
+              <div class="oc-item-title"><%= it.title %></div>
+              <div class="oc-item-meta"><%= it.quantity %> × <%= formatKzt(it.price) %></div>
+              <div class="oc-item-sum"><%= formatKzt(it.price * it.quantity) %></div>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+    </div>
+
+    <div class="oc-actions">
+      <a href="/tracking?code=DH-<%= String(order.id).padStart(4, '0') %>&contact=<%= encodeURIComponent(order.email || order.phone || '') %>" class="btn-prime"><%= pick(locale, "Отследить заказ", "Тапсырысты бақылау") %></a>
+      <a href="/catalog" class="btn-ghost"><%= pick(locale, "Вернуться в каталог", "Каталогқа оралу") %></a>
+      <a href="/account" class="btn-ghost"><%= pick(locale, "Личный кабинет", "Жеке кабинет") %></a>
+    </div>
+  </section>
+</main>
+
+<%- include('partials/foot') %>

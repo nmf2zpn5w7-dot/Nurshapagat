@@ -1,0 +1,64 @@
+<%- include('partials/head') %>
+
+<main class="auth-page">
+  <section class="site-wrap auth-wrap">
+    <article class="auth-card">
+      <div class="auth-mark">
+        <span class="auth-mark-note">♪</span>
+        <span class="auth-mark-name">Aspap.kz</span>
+      </div>
+      <h1><%= pick(locale, "Регистрация", "Тіркелу") %></h1>
+      <p>
+        <%= pick(
+          locale,
+          "Создайте аккаунт для управления заказами, избранным и настройками профиля.",
+          "Тапсырыстар, таңдаулылар және профиль баптауларын басқару үшін аккаунт ашыңыз."
+        ) %>
+      </p>
+
+      <form class="auth-form" method="POST" action="/register">
+        <div class="auth-grid">
+          <div class="field">
+            <label><%= pick(locale, "ФИО", "Аты-жөні") %></label>
+            <input name="fullName" value="<%= form.fullName || '' %>" required placeholder="<%= pick(locale, "Алпамыс Батыр", "Алпамыс Батыр") %>" />
+          </div>
+          <div class="field">
+            <label>Email</label>
+            <input type="email" name="email" value="<%= form.email || '' %>" required placeholder="example@mail.kz" />
+          </div>
+          <div class="field">
+            <label><%= pick(locale, "Телефон", "Телефон") %></label>
+            <input name="phone" value="<%= form.phone || '' %>" required placeholder="+7 (7__) ___-__-__" inputmode="tel" autocomplete="tel" data-mask="kz-phone" maxlength="18" />
+          </div>
+          <div class="field">
+            <label><%= pick(locale, "Город", "Қала") %></label>
+            <input name="city" value="<%= form.city || '' %>" required placeholder="<%= pick(locale, "Алматы", "Алматы") %>" />
+          </div>
+          <div class="field auth-span-2">
+            <label><%= pick(locale, "Адрес", "Мекенжай") %></label>
+            <input name="address" value="<%= form.address || '' %>" required placeholder="<%= pick(locale, "Улица, дом, квартира", "Көше, үй, пәтер") %>" />
+          </div>
+          <div class="field auth-span-2">
+            <label><%= pick(locale, "Пароль", "Құпиясөз") %></label>
+            <input type="password" name="password" minlength="8" required placeholder="••••••••" />
+          </div>
+        </div>
+
+        <% if (error) { %>
+          <div class="auth-error"><%= error %></div>
+        <% } %>
+
+        <button type="submit" class="auth-btn">
+          <%= pick(locale, "Создать аккаунт", "Аккаунт ашу") %>
+        </button>
+      </form>
+
+      <div class="auth-switch">
+        <span><%= pick(locale, "Уже есть аккаунт?", "Аккаунтыңыз бар ма?") %></span>
+        <a href="/login"><%= pick(locale, "Войти", "Кіру") %></a>
+      </div>
+    </article>
+  </section>
+</main>
+
+<%- include('partials/foot') %>

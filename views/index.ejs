@@ -1,0 +1,97 @@
+<%- include('partials/head') %>
+
+<main class="hd-page">
+  <section class="hd-hero">
+    <div class="hd-hero-image"></div>
+    <div class="hd-hero-overlay"></div>
+    <div class="site-wrap hd-hero-content">
+      <span><%= pick(locale, "Мастерство мирового уровня", "Әлемдік деңгейдегі шеберлік") %></span>
+      <h1>
+        <%= pick(locale, "Голос Великой", "Ұлы") %> <em><%= pick(locale, "Степи", "Даланың үні") %></em>
+      </h1>
+      <div class="hd-hero-cta">
+        <a href="/catalog" class="btn-prime">
+          <%= pick(locale, "Исследовать коллекцию", "Коллекцияны көру") %>
+        </a>
+        <a href="/workshop" class="btn-ghost" style="color: white; border-color: white;">
+          <%= pick(locale, "О мастерской", "Шеберхана туралы") %>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="hd-soul site-wrap">
+    <div class="hd-soul-photo">
+      <img src="https://images.pexels.com/photos/29436330/pexels-photo-29436330.jpeg?auto=compress&cs=tinysrgb&w=1600" alt="Master Heritage">
+    </div>
+    <article class="hd-soul-copy">
+      <span style="color:var(--gold-primary); font-weight:800; letter-spacing:0.3em; text-transform:uppercase; font-size:0.8rem; margin-bottom:1.5rem; display:block;">Selection</span>
+      <h2><%= pick(locale, "Душа каждого инструмента", "Әр аспаптың жаны") %></h2>
+      <p style="font-size:1.2rem; color:var(--text-muted); margin-bottom:3rem; line-height: 1.8;">
+        <%= pick(locale, "Мы создаем не просто музыкальные инструменты, а проводники истории, передающие дух кочевой культуры через поколения. Каждая домбра — это результат сотен часов ручного труда.", "Біз жай ғана музыкалық аспаптарды емес, көшпелі мәдениеттің рухын ұрпақтан ұрпаққа жеткізетін тарих жолсеріктерін жасаймыз. Әр домбыра — жүздеген сағаттық қол еңбегінің нәтижесі.") %>
+      </p>
+      <div class="hd-stats">
+        <div>
+          <strong>25+</strong>
+          <span style="font-size:0.75rem; font-weight:800; text-transform:uppercase; letter-spacing:0.15em; color:var(--text-muted);"><%= pick(locale, "мастеров", "шебер") %></span>
+        </div>
+        <div>
+          <strong>100%</strong>
+          <span style="font-size:0.75rem; font-weight:800; text-transform:uppercase; letter-spacing:0.15em; color:var(--text-muted);"><%= pick(locale, "ручная работа", "қол жұмысы") %></span>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <section class="hd-collection">
+    <div class="site-wrap">
+      <div class="hd-collection-head">
+        <span style="color:var(--gold-primary); font-weight:800; letter-spacing:0.3em; text-transform:uppercase; font-size:0.85rem; margin-bottom:1.5rem; display:block;">Elite Series</span>
+        <h2><%= pick(locale, "Избранная коллекция", "Таңдамалы коллекция") %></h2>
+      </div>
+
+      <div class="hd-bento">
+        <% featured.forEach((item, index) => { %>
+          <div class="hd-tile">
+            <a href="/product/<%= item.id %>">
+              <img src="<%= item.image %>" alt="<%= item.name %>">
+              <div class="hd-tile-content">
+                <span class="hd-badge"><%= item.badge || 'Premium' %></span>
+                <h3 style="font-size:2.2rem; margin:1rem 0; font-family: var(--font-serif);"><%= item.name %></h3>
+                <strong style="color:var(--gold-light); font-size:1.4rem; font-family: var(--font-serif);"><%= formatKzt(item.price) %></strong>
+              </div>
+            </a>
+            <% if (!user || user.role !== 'admin') { %>
+              <button onclick="addToCart(<%= JSON.stringify({id: item.id, name: item.name, price: item.price, image: item.image}) %>)" 
+                      class="qm-cart-btn"
+                      style="position:absolute; top:2.5rem; right:2.5rem; z-index:10; background: white; color: var(--bg-deep);">
+                  <i class="fa-solid fa-cart-plus"></i>
+              </button>
+            <% } %>
+          </div>
+        <% }) %>
+      </div>
+      
+      <div style="text-align: center; margin-top: 6rem;">
+        <a href="/catalog" class="btn-ghost"><%= pick(locale, "Смотреть весь каталог", "Барлық каталогты көру") %></a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+function addToCart(product) {
+    let cart = JSON.parse(localStorage.getItem('aspap-cart-v1') || '[]');
+    const existing = cart.find(item => item.id === product.id);
+    if (existing) {
+        existing.qty += 1;
+    } else {
+        cart.push({...product, qty: 1});
+    }
+    localStorage.setItem('aspap-cart-v1', JSON.stringify(cart));
+    updateCartCount();
+    showToast('<%= pick(locale, "Товар добавлен в корзину", "Тауар себетке қосылды") %>');
+}
+</script>
+
+<%- include('partials/foot') %>

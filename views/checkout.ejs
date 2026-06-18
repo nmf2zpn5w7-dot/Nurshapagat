@@ -1,0 +1,609 @@
+<%- include('partials/head') %>
+
+<main class="co-page site-wrap">
+  <section class="co-main">
+    <h1 class="co-title"><%= pick(locale, "Оформление заказа", "Тапсырысты рәсімдеу") %></h1>
+
+    <div class="co-grid">
+      <form class="co-left" id="checkout-form">
+        <section class="co-card">
+          <h2><%= pick(locale, "Контактные данные", "Байланыс деректері") %></h2>
+          <div class="co-form-grid">
+            <div class="field">
+              <label><%= pick(locale, "ФИО", "Аты-жөні") %></label>
+              <input name="customerName" value="<%= typeof initialData !== 'undefined' && initialData?.customerName ? initialData.customerName : '' %>" placeholder="<%= pick(locale, "Алпамыс Батыр", "Алпамыс Батыр") %>" required />
+            </div>
+            <div class="field">
+              <label><%= pick(locale, "Телефон", "Телефон") %></label>
+              <input name="phone" value="<%= typeof initialData !== 'undefined' && initialData?.phone ? initialData.phone : '' %>" placeholder="+7 (7__) ___-__-__" required inputmode="tel" autocomplete="tel" data-mask="kz-phone" maxlength="18" />
+            </div>
+            <div class="field full">
+              <label>Email</label>
+              <input type="email" name="email" value="<%= typeof initialData !== 'undefined' && initialData?.email ? initialData.email : '' %>" placeholder="example@mail.kz" required />
+            </div>
+            <div class="field full">
+              <label><%= pick(locale, "Город", "Қала") %></label>
+              <input name="city" value="<%= typeof initialData !== 'undefined' && initialData?.city ? initialData.city : '' %>" placeholder="<%= pick(locale, "Алматы", "Алматы") %>" required />
+            </div>
+            <div class="field full">
+              <label><%= pick(locale, "Адрес доставки", "Жеткізу мекенжайы") %></label>
+              <input name="address" value="<%= typeof initialData !== 'undefined' && initialData?.address ? initialData.address : '' %>" placeholder="<%= pick(locale, "Улица, дом, квартира", "Көше, үй, пәтер") %>" required />
+            </div>
+            <div class="field full">
+              <label><%= pick(locale, "Комментарий", "Түсініктеме") %></label>
+              <textarea rows="3" name="comment" placeholder="<%= pick(locale, "Дополнительные пожелания к инструменту...", "Аспапқа қатысты қосымша тілектер...") %>"></textarea>
+            </div>
+          </div>
+        </section>
+
+        <section class="co-card">
+          <h2><%= pick(locale, "Способ доставки", "Жеткізу тәсілі") %></h2>
+          <div class="co-delivery-grid">
+            <% const dOps = [
+                { id: "express", title: pick(locale, "Экспресс доставка", "Экспресс жеткізу"), sub: pick(locale, "1-2 рабочих дня", "1-2 жұмыс күні"), price: 5000, icon: "fa-truck-fast" },
+                { id: "standard", title: pick(locale, "Стандартная доставка", "Стандартты жеткізу"), sub: pick(locale, "3-5 рабочих дней", "3-5 жұмыс күні"), price: 2000, icon: "fa-truck" },
+                { id: "pickup", title: pick(locale, "Самовывоз из мастерской", "Шеберханадан алып кету"), sub: pick(locale, "Бесплатно", "Тегін"), price: 0, icon: "fa-store" }
+            ]; %>
+            <% dOps.forEach(op => { %>
+              <label class="co-option">
+                <input type="radio" name="deliveryMethod" value="<%= op.id %>" <%= op.id === 'express' ? 'checked' : '' %> onchange="updateCheckoutSummary()" />
+                <span class="co-option-icon"><i class="fa-solid <%= op.icon %>"></i></span>
+                <div style="flex: 1;">
+                  <strong style="display: block; font-size: 1.1rem; margin-bottom: 0.2rem;"><%= op.title %></strong>
+                  <small style="color: var(--text-muted); font-weight: 600;"><%= op.sub %></small>
+                </div>
+                <strong style="color: var(--gold-dark);"><%= op.price > 0 ? formatKzt(op.price) : pick(locale, "Бесплатно", "Тегін") %></strong>
+              </label>
+            <% }) %>
+          </div>
+        </section>
+
+        <section class="co-card">
+          <h2><%= pick(locale, "Способ оплаты", "Төлем тәсілі") %></h2>
+          <div class="co-payment-list">
+            <label class="co-payment">
+              <div>
+                <input type="radio" name="paymentMethod" value="card" checked />
+                <span style="font-weight: 800;"><%= pick(locale, "Банковская карта", "Банк картасы") %></span>
+              </div>
+              <span class="pay-icon pay-card"><i class="fa-solid fa-credit-card"></i></span>
+            </label>
+            
+            <label class="co-payment">
+              <div>
+                <input type="radio" name="paymentMethod" value="kaspi_qr" />
+                <span style="font-weight: 800;">Kaspi QR</span>
+              </div>
+              <span class="pay-icon pay-kaspi-qr"><span class="pay-kaspi-k">K</span><span class="pay-qr">QR</span></span>
+            </label>
+
+            <label class="co-payment">
+              <div>
+                <input type="radio" name="paymentMethod" value="installments" />
+                <span style="font-weight: 800;">Kaspi <%= pick(locale, "Рассрочка", "Бөліп төлеу") %></span>
+              </div>
+              <span class="pay-icon pay-kaspi-red"><span class="pay-kaspi-k">K</span><span class="pay-red"><%= pick(locale, "0-0-12", "0-0-12") %></span></span>
+            </label>
+          </div>
+          <div class="co-pay-details" id="co-pay-details"></div>
+        </section>
+      </form>
+
+      <aside class="co-right">
+        <div class="co-summary">
+          <h3><%= pick(locale, "Ваш заказ", "Сіздің тапсырысыңыз") %></h3>
+          <div id="checkout-items-list" style="max-height: 400px; overflow-y: auto; margin-bottom: 3rem;"></div>
+
+          <div class="co-breakdown">
+            <div><span><%= pick(locale, "Подытог", "Аралық сома") %></span><span id="co-subtotal">0 ₸</span></div>
+            <div><span><%= pick(locale, "Доставка", "Жеткізу") %></span><span id="co-shipping">0 ₸</span></div>
+            <div><span><%= pick(locale, "Скидка", "Жеңілдік") %></span><span class="co-discount" id="co-discount" style="color: #27ae60;">-0 ₸</span></div>
+          </div>
+
+          <div class="co-total">
+            <span><%= pick(locale, "Итого", "Барлығы") %></span>
+            <strong id="co-grand-total" style="font-size: 2.2rem; font-family: var(--font-serif); color: var(--gold-dark);">0 ₸</strong>
+          </div>
+
+          <button class="co-confirm" type="button" onclick="submitCheckout()">
+            <%= pick(locale, "Подтвердить заказ", "Тапсырысты растау") %> →
+          </button>
+          
+          <p style="text-align: center; font-size: 0.75rem; color: var(--text-muted); margin-top: 2rem; line-height: 1.6;">
+            <%= pick(locale, "Нажимая кнопку, вы соглашаетесь с условиями публичной оферты и политикой конфиденциальности.", "Түймені басу арқылы сіз оферта шарттарымен және құпиялылық саясатымен келісесіз.") %>
+          </p>
+        </div>
+      </aside>
+    </div>
+  </section>
+</main>
+
+<div class="ui-modal" id="card-pay-modal" aria-hidden="true">
+  <div class="ui-modal-overlay" onclick="closeCardPay()"></div>
+  <div class="ui-modal-panel" role="dialog" aria-modal="true">
+    <div class="ui-modal-head">
+      <div style="font-weight: 900; font-size: 1.1rem;"><%= pick(locale, "Оплата картой", "Картамен төлеу") %></div>
+      <button type="button" class="ui-modal-close" onclick="closeCardPay()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="ui-modal-body">
+      <form id="card-pay-form" class="auth-form" onsubmit="event.preventDefault(); startCardPayment();">
+        <% if (paymentMethods && paymentMethods.length) { %>
+          <div class="field">
+            <label><%= pick(locale, "Сохраненная карта", "Сақталған карта") %></label>
+            <select name="paymentMethodId" id="saved-card-select">
+              <% paymentMethods.forEach(pm => { %>
+                <option value="<%= pm.id %>"><%= pm.brand %> •••• <%= pm.last4 %> (EXP <%= String(pm.exp_month).padStart(2,'0') %>/<%= String(pm.exp_year).slice(-2) %>)</option>
+              <% }) %>
+            </select>
+          </div>
+          <label style="display:flex; gap:0.6rem; align-items:center; color:var(--text-muted); font-weight:700; margin: 0.25rem 0 1.25rem;">
+            <input type="checkbox" id="use-saved-card" checked onchange="toggleCardInputs()">
+            <span><%= pick(locale, "Использовать сохраненную карту", "Сақталған картаны қолдану") %></span>
+          </label>
+        <% } %>
+
+        <div id="new-card-fields">
+          <div class="field">
+            <label><%= pick(locale, "Номер карты", "Карта нөмірі") %></label>
+            <input name="cardNumber" inputmode="numeric" autocomplete="cc-number" placeholder="0000 0000 0000 0000" data-mask="card" maxlength="19" />
+          </div>
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 1.2rem;">
+            <div class="field">
+              <label>MM</label>
+              <input name="expMonth" inputmode="numeric" autocomplete="cc-exp-month" placeholder="12" maxlength="2" data-mask="digits2" />
+            </div>
+            <div class="field">
+              <label>YYYY</label>
+              <input name="expYear" inputmode="numeric" autocomplete="cc-exp-year" placeholder="2028" maxlength="4" data-mask="digits4" />
+            </div>
+          </div>
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 1.2rem;">
+            <div class="field">
+              <label><%= pick(locale, "Держатель", "Иесі") %></label>
+              <input name="holderName" autocomplete="cc-name" placeholder="ALPAMYS BATYR" />
+            </div>
+            <div class="field">
+              <label>CVC</label>
+              <input name="cvc" inputmode="numeric" autocomplete="cc-csc" placeholder="123" maxlength="3" data-mask="cvc" />
+            </div>
+          </div>
+          <% if (user) { %>
+            <label style="display:flex; gap:0.6rem; align-items:center; color:var(--text-muted); font-weight:700; margin-top: 0.5rem;">
+              <input type="checkbox" name="saveCard" checked>
+              <span><%= pick(locale, "Сохранить карту в кабинете", "Кабинетте сақтау") %></span>
+            </label>
+          <% } %>
+        </div>
+
+        <button id="card-pay-submit" type="submit" class="btn-prime" style="width:100%; margin-top: 1.2rem;">
+          <%= pick(locale, "Продолжить", "Жалғастыру") %>
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="ui-modal" id="otp-modal" aria-hidden="true">
+  <div class="ui-modal-overlay" onclick="closeOtp()"></div>
+  <div class="ui-modal-panel" role="dialog" aria-modal="true">
+    <div class="ui-modal-head">
+      <div style="font-weight: 900; font-size: 1.1rem;">3‑D Secure</div>
+      <button type="button" class="ui-modal-close" onclick="closeOtp()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="ui-modal-body">
+      <div style="color: var(--text-muted); font-weight: 650; line-height: 1.7; margin-bottom: 1.25rem;">
+        <%= pick(locale, "Введите код подтверждения, отправленный на", "Мына мекенжайға жіберілген растау кодын енгізіңіз") %> <strong id="otp-destination"></strong>
+      </div>
+      <div id="otp-demo" class="otp-demo" style="display:none;">
+        <%= pick(locale, "Код подтверждения", "Растау коды") %>: <strong id="otp-demo-code"></strong>
+      </div>
+      <form id="otp-form" class="auth-form" onsubmit="event.preventDefault(); confirmOtp();">
+        <div class="field">
+          <label><%= pick(locale, "Код", "Код") %></label>
+          <input name="code" inputmode="numeric" placeholder="000000" required />
+        </div>
+        <button id="otp-submit" type="submit" class="btn-prime" style="width:100%; margin-top: 1rem;">
+          <%= pick(locale, "Подтвердить", "Растау") %>
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+function formatKzt(v) { return new Intl.NumberFormat("ru-RU").format(v) + " ₸"; }
+const savedCards = <%- JSON.stringify(paymentMethods || []) %>;
+let pendingIntentId = null;
+let pendingPayload = null;
+
+function hashStringToInt(s) {
+    let h = 2166136261;
+    for (let i = 0; i < s.length; i++) {
+        h ^= s.charCodeAt(i);
+        h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
+}
+
+function renderFakeQrSvg(seed) {
+    const size = 25;
+    const module = 6;
+    const pad = 12;
+    const w = size * module + pad * 2;
+    const h = w;
+
+    function rng() {
+        seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
+        return seed / 4294967296;
+    }
+
+    function isFinder(x, y) {
+        const inTL = x < 7 && y < 7;
+        const inTR = x >= size - 7 && y < 7;
+        const inBL = x < 7 && y >= size - 7;
+        return inTL || inTR || inBL;
+    }
+
+    let rects = '';
+    for (let y = 0; y < size; y++) {
+        for (let x = 0; x < size; x++) {
+            let on = false;
+            if (isFinder(x, y)) {
+                const fx = x % 7;
+                const fy = y % 7;
+                const ring = fx === 0 || fx === 6 || fy === 0 || fy === 6;
+                const core = fx >= 2 && fx <= 4 && fy >= 2 && fy <= 4;
+                on = ring || core;
+            } else {
+                on = rng() > 0.62;
+            }
+            if (on) {
+                const rx = pad + x * module;
+                const ry = pad + y * module;
+                rects += `<rect x="${rx}" y="${ry}" width="${module}" height="${module}" />`;
+            }
+        }
+    }
+
+    return `
+      <svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="QR">
+        <rect x="0" y="0" width="${w}" height="${h}" fill="#ffffff" rx="16" ry="16"></rect>
+        <g fill="#0f0b08">${rects}</g>
+      </svg>
+    `.trim();
+}
+
+function updatePaymentDetails(total, paymentMethod) {
+    const el = document.getElementById('co-pay-details');
+    if (!el) return;
+
+    if (paymentMethod === 'kaspi_qr') {
+        const seed = hashStringToInt('aspap:kaspi_qr:' + total);
+        el.innerHTML = `
+          <div class="co-pay-panel kaspi">
+            <div class="co-pay-panel-top">
+              <div class="co-pay-badge">Kaspi QR</div>
+              <div class="co-pay-amount">${formatKzt(total)}</div>
+            </div>
+            <div class="co-pay-panel-body">
+              <div class="co-pay-steps">
+                <div class="co-pay-step"><strong>1.</strong> <span><%= pick(locale, "Откройте приложение Kaspi.kz", "Kaspi.kz қосымшасын ашыңыз") %></span></div>
+                <div class="co-pay-step"><strong>2.</strong> <span><%= pick(locale, "Платежи → QR", "Төлемдер → QR") %></span></div>
+                <div class="co-pay-step"><strong>3.</strong> <span><%= pick(locale, "Отсканируйте код и подтвердите", "Кодты сканерлеп, растаңыз") %></span></div>
+              </div>
+              <div class="co-qr">${renderFakeQrSvg(seed)}</div>
+            </div>
+            <div class="co-pay-foot"><%= pick(locale, "Сумма и детали заказа будут доступны в Kaspi после подтверждения.", "Сома және тапсырыс мәліметі растаудан кейін Kaspi-де қолжетімді болады.") %></div>
+          </div>
+        `;
+        return;
+    }
+
+    if (paymentMethod === 'installments') {
+        el.innerHTML = `
+          <div class="co-pay-panel installments">
+            <div class="co-pay-panel-top">
+              <div class="co-pay-badge">Kaspi 0-0-12</div>
+              <div class="co-pay-amount">${formatKzt(total)}</div>
+            </div>
+            <div class="co-pay-panel-body">
+              <div class="co-pay-steps">
+                <div class="co-pay-step"><strong>•</strong> <span><%= pick(locale, "Предварительное одобрение — в приложении", "Алдын ала мақұлдау — қосымшада") %></span></div>
+                <div class="co-pay-step"><strong>•</strong> <span><%= pick(locale, "Срок и лимит зависят от вашего Kaspi", "Мерзім мен лимит Kaspi-ге байланысты") %></span></div>
+                <div class="co-pay-step"><strong>•</strong> <span><%= pick(locale, "После подтверждения вы получите инструкцию для оформления рассрочки", "Растаудан кейін бөліп төлеуді рәсімдеу нұсқаулығын аласыз") %></span></div>
+              </div>
+              <div class="co-pay-note"><%= pick(locale, "Оформление рассрочки занимает несколько минут в приложении Kaspi.kz.", "Kaspi.kz қосымшасында бөліп төлеуді рәсімдеу бірнеше минут алады.") %></div>
+            </div>
+          </div>
+        `;
+        return;
+    }
+
+    el.innerHTML = `
+      <div class="co-pay-panel card">
+        <div class="co-pay-panel-top">
+          <div class="co-pay-badge"><%= pick(locale, "Карта", "Карта") %></div>
+          <div class="co-pay-amount">${formatKzt(total)}</div>
+        </div>
+        <div class="co-pay-panel-body">
+          <div class="co-pay-note"><%= pick(locale, "Оплата онлайн с подтверждением 3‑D Secure.", "3‑D Secure растауымен онлайн төлем.") %></div>
+        </div>
+      </div>
+    `;
+}
+
+function updateCheckoutSummary() {
+    const items = JSON.parse(localStorage.getItem('aspap-cart-v1') || '[]');
+    const subtotal = items.reduce((s, i) => s + i.price * i.qty, 0);
+    const qty = items.reduce((s, i) => s + i.qty, 0);
+    const dMethod = document.querySelector('input[name="deliveryMethod"]:checked').value;
+    const dPrice = dMethod === 'express' ? 5000 : (dMethod === 'standard' ? 2000 : 0);
+    const discount = qty >= 2 ? 10000 : 0;
+    const total = Math.max(0, subtotal + dPrice - discount);
+
+    document.getElementById('co-subtotal').textContent = formatKzt(subtotal);
+    document.getElementById('co-shipping').textContent = formatKzt(dPrice);
+    document.getElementById('co-discount').textContent = '-' + formatKzt(discount);
+    document.getElementById('co-grand-total').textContent = formatKzt(total);
+
+    const list = document.getElementById('checkout-items-list');
+    list.innerHTML = items.map(i => `
+        <article class="co-order-item">
+            <img src="${i.image}" alt="${i.name}" />
+            <div style="flex: 1;">
+                <h4 style="font-family: var(--font-serif); font-size: 1.2rem;">${i.name}</h4>
+                <p style="font-weight: 700; color: var(--text-muted); margin: 0.2rem 0;">${i.qty} <%= pick(locale, "шт.", "дана") %></p>
+                <strong style="color: var(--gold-dark);">${formatKzt(i.price * i.qty)}</strong>
+            </div>
+        </article>
+    `).join('');
+
+    const pMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value || 'card';
+    updatePaymentDetails(total, pMethod);
+}
+
+async function submitCheckout() {
+    const items = JSON.parse(localStorage.getItem('aspap-cart-v1') || '[]');
+    if (items.length === 0) return showToast('<%= pick(locale, "Корзина пуста", "Себет бос") %>', 'error');
+
+    const form = document.getElementById('checkout-form');
+    const formData = new FormData(form);
+    const customer = Object.fromEntries(formData.entries());
+    const deliveryMethod = customer.deliveryMethod;
+    const paymentMethod = customer.paymentMethod;
+    delete customer.deliveryMethod;
+    delete customer.paymentMethod;
+
+    const payload = {
+      customer,
+      items: items.map(i => ({id: i.id, qty: i.qty})),
+      checkout: { deliveryMethod, paymentMethod }
+    };
+
+    if (paymentMethod === 'card') {
+      pendingPayload = payload;
+      openCardPay();
+      return;
+    }
+
+    const res = await fetch('/api/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json().catch(() => ({}));
+    if (res.ok) {
+      localStorage.removeItem('aspap-cart-v1');
+      window.location.href = '/order-confirmation/' + data.orderId;
+    } else {
+      if (data && (data.missing || data.outOfStock)) {
+        const items = JSON.parse(localStorage.getItem('aspap-cart-v1') || '[]');
+        let next = items.slice();
+        if (Array.isArray(data.missing) && data.missing.length) {
+          const missingIds = new Set(data.missing.map(m => Number(m.id)).filter(Boolean));
+          next = next.filter(i => !missingIds.has(Number(i.id)));
+        }
+        if (Array.isArray(data.outOfStock) && data.outOfStock.length) {
+          const map = new Map(data.outOfStock.map(o => [Number(o.id), Number(o.available)]));
+          next = next.map(i => {
+            const avail = map.get(Number(i.id));
+            if (typeof avail === 'number') return { ...i, qty: Math.max(1, Math.min(Number(i.qty) || 1, avail)) };
+            return i;
+          }).filter(i => (Number(i.qty) || 0) > 0);
+        }
+        localStorage.setItem('aspap-cart-v1', JSON.stringify(next));
+        updateCheckoutSummary();
+      }
+      showToast(data.error || '<%= pick(locale, "Ошибка", "Қате") %>', 'error');
+    }
+}
+
+function openCardPay() {
+  const m = document.getElementById('card-pay-modal');
+  if (!m) return;
+  m.classList.add('open');
+  m.setAttribute('aria-hidden', 'false');
+  toggleCardInputs();
+}
+
+function closeCardPay() {
+  const m = document.getElementById('card-pay-modal');
+  if (!m) return;
+  m.classList.remove('open');
+  m.setAttribute('aria-hidden', 'true');
+}
+
+function toggleCardInputs() {
+  const useSaved = document.getElementById('use-saved-card');
+  const fields = document.getElementById('new-card-fields');
+  if (!fields) return;
+  if (useSaved && useSaved.checked) {
+    fields.style.display = 'none';
+  } else {
+    fields.style.display = '';
+  }
+}
+
+function openOtp(destination) {
+  const m = document.getElementById('otp-modal');
+  if (!m) return;
+  const d = document.getElementById('otp-destination');
+  if (d) d.textContent = destination || '';
+  const demo = document.getElementById('otp-demo');
+  const demoCode = document.getElementById('otp-demo-code');
+  if (demo && demoCode) {
+    demo.style.display = 'none';
+    demoCode.textContent = '';
+  }
+  m.classList.add('open');
+  m.setAttribute('aria-hidden', 'false');
+}
+
+function closeOtp() {
+  const m = document.getElementById('otp-modal');
+  if (!m) return;
+  m.classList.remove('open');
+  m.setAttribute('aria-hidden', 'true');
+}
+
+async function startCardPayment() {
+  if (!pendingPayload) return;
+
+  const form = document.getElementById('card-pay-form');
+  const data = Object.fromEntries(new FormData(form).entries());
+  const useSaved = document.getElementById('use-saved-card');
+
+  const payment = {};
+  if (useSaved && useSaved.checked) {
+    payment.paymentMethodId = Number(data.paymentMethodId || 0);
+  } else {
+    payment.cardNumber = data.cardNumber;
+    payment.expMonth = Number(data.expMonth);
+    payment.expYear = Number(String(data.expYear || '').trim().length === 2 ? ('20' + String(data.expYear || '').trim()) : data.expYear);
+    payment.cvc = data.cvc;
+    payment.holderName = data.holderName;
+    payment.saveCard = Boolean(data.saveCard);
+  }
+
+  const btn = document.getElementById('card-pay-submit');
+  if (btn) {
+    btn.disabled = true;
+    btn.style.opacity = '0.75';
+    btn.textContent = '<%= pick(locale, "Проверяем…", "Тексерілуде…") %>';
+  }
+
+  const res = await fetch('/api/orders', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ...pendingPayload, payment })
+  });
+  const json = await res.json().catch(() => ({}));
+
+  if (btn) {
+    btn.disabled = false;
+    btn.style.opacity = '';
+    btn.textContent = '<%= pick(locale, "Продолжить", "Жалғастыру") %>';
+  }
+
+  if (res.ok && json.requiresAction) {
+    pendingIntentId = json.intentId;
+    closeCardPay();
+    openOtp(json.destination);
+    if (json.otp) {
+      const demo = document.getElementById('otp-demo');
+      const demoCode = document.getElementById('otp-demo-code');
+      if (demo && demoCode) {
+        demoCode.textContent = String(json.otp);
+        demo.style.display = 'block';
+      }
+    }
+    return;
+  }
+
+  if (res.ok) {
+    localStorage.removeItem('aspap-cart-v1');
+    window.location.href = '/order-confirmation/' + json.orderId;
+    return;
+  }
+
+  if (json && (json.missing || json.outOfStock)) {
+    const items = JSON.parse(localStorage.getItem('aspap-cart-v1') || '[]');
+    let next = items.slice();
+    if (Array.isArray(json.missing) && json.missing.length) {
+      const missingIds = new Set(json.missing.map(m => Number(m.id)).filter(Boolean));
+      next = next.filter(i => !missingIds.has(Number(i.id)));
+    }
+    if (Array.isArray(json.outOfStock) && json.outOfStock.length) {
+      const map = new Map(json.outOfStock.map(o => [Number(o.id), Number(o.available)]));
+      next = next.map(i => {
+        const avail = map.get(Number(i.id));
+        if (typeof avail === 'number') return { ...i, qty: Math.max(1, Math.min(Number(i.qty) || 1, avail)) };
+        return i;
+      }).filter(i => (Number(i.qty) || 0) > 0);
+    }
+    localStorage.setItem('aspap-cart-v1', JSON.stringify(next));
+    updateCheckoutSummary();
+    closeCardPay();
+  }
+
+  showToast(json.error || '<%= pick(locale, "Ошибка оплаты", "Төлем қатесі") %>', 'error');
+}
+
+async function confirmOtp() {
+  const form = document.getElementById('otp-form');
+  const code = String(new FormData(form).get('code') || '').trim();
+  if (!pendingIntentId) return;
+
+  const btn = document.getElementById('otp-submit');
+  if (btn) {
+    btn.disabled = true;
+    btn.style.opacity = '0.75';
+    btn.textContent = '<%= pick(locale, "Подтверждаем…", "Расталуда…") %>';
+  }
+
+  const res = await fetch('/api/payments/confirm', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ intentId: pendingIntentId, code })
+  });
+  const json = await res.json().catch(() => ({}));
+
+  if (!res.ok) {
+    if (btn) {
+      btn.disabled = false;
+      btn.style.opacity = '';
+      btn.textContent = '<%= pick(locale, "Подтвердить", "Растау") %>';
+    }
+    return showToast(json.error || '<%= pick(locale, "Неверный код", "Код қате") %>', 'error');
+  }
+
+  const res2 = await fetch('/api/orders', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ...pendingPayload, payment: { intentId: pendingIntentId } })
+  });
+  const json2 = await res2.json().catch(() => ({}));
+
+  if (btn) {
+    btn.disabled = false;
+    btn.style.opacity = '';
+    btn.textContent = '<%= pick(locale, "Подтвердить", "Растау") %>';
+  }
+
+  if (res2.ok) {
+    closeOtp();
+    localStorage.removeItem('aspap-cart-v1');
+    window.location.href = '/order-confirmation/' + json2.orderId;
+  } else {
+    showToast(json2.error || '<%= pick(locale, "Ошибка", "Қате") %>', 'error');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('input[name="paymentMethod"]').forEach(r => r.addEventListener('change', updateCheckoutSummary));
+    updateCheckoutSummary();
+});
+</script>
+
+<%- include('partials/foot') %>

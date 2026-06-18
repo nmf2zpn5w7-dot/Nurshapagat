@@ -1,0 +1,303 @@
+<%- include('partials/head') %>
+
+<main class="wh-page">
+  <section class="wh-hero">
+    <div class="wh-hero-bg"></div>
+    <div class="hd-hero-overlay"></div>
+    <div class="site-wrap wh-hero-content" style="position:relative; z-index:2; color:white;">
+      <span style="font-weight:800; letter-spacing:0.4em; color:var(--gold-primary); text-transform:uppercase; font-size:0.9rem; display: block; margin-bottom: 2rem;"><%= pick(locale, "Искусство творения", "Жасау өнері") %></span>
+      <h2 style="font-size: clamp(3rem, 8vw, 6rem); margin:1rem 0; font-family: var(--font-serif); line-height: 1.1;"><%= pick(locale, "Создание голоса Великой Степи", "Ұлы Дала үнін жарату") %></h2>
+    </div>
+  </section>
+
+  <section class="wh-history site-wrap">
+    <article>
+      <div class="wh-pill"><%= pick(locale, "Традиции", "Дәстүр") %></div>
+      <h3 style="font-size:3.5rem; margin-bottom:2.5rem;"><%= pick(locale, "История инструмента", "Аспап тарихы") %></h3>
+      <p style="font-size:1.2rem; color:var(--text-muted); margin-bottom:2rem; line-height: 1.8;">
+        <%= pick(locale, "На протяжении веков домбра служила сердцем кочевой культуры. Каждый изгиб и каждый орнамент выражает духовную связь между мастером и природой.", "Ғасырлар бойы домбыра көшпелі мәдениеттің жүрегі болды. Әр иін мен әр ою шебер мен табиғат арасындағы рухани байланысты білдіреді.") %>
+      </p>
+      <p style="font-size:1.1rem; color:var(--text-muted); line-height: 1.8;">
+        <%= pick(locale, "В нашей мастерской мы используем только ценные породы дерева: тянь-шаньскую ель, орех и клен, которые выдерживаются годами в специальных условиях.", "Біздің шеберханада біз тек бағалы ағаш түрлерін пайдаланамыз: Тянь-Шань шыршасы, жаңғақ және үйеңкі, олар арнайы жағдайларда жылдар бойы сақталады.") %>
+      </p>
+    </article>
+
+    <div class="wh-history-image-wrap">
+      <img src="https://images.pexels.com/photos/30472370/pexels-photo-30472370.jpeg?auto=compress&cs=tinysrgb&w=1400" alt="Mastery History" style="border-radius:var(--radius-lg); box-shadow:var(--shadow-elite); transform: rotate(-2deg);">
+    </div>
+  </section>
+
+  <section class="wh-process">
+    <div class="site-wrap">
+      <div style="text-align:center; margin-bottom:8rem;">
+        <span style="color:var(--gold-primary); font-weight:800; letter-spacing:0.3em; text-transform:uppercase; font-size: 0.85rem; display: block; margin-bottom: 1.5rem;">The Craftsmanship</span>
+        <h3 style="font-size:4rem;"><%= pick(locale, "Процесс создания", "Жасалу барысы") %></h3>
+      </div>
+
+      <div class="wh-process-grid">
+        <article>
+          <img src="https://images.pexels.com/photos/29430293/pexels-photo-29430293.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="Selection of Wood">
+          <h4 style="font-family: var(--font-serif); font-size: 2rem; margin-bottom: 1.5rem;">01. <%= pick(locale, "Выбор дерева", "Ағаш таңдау") %></h4>
+          <p style="color: var(--text-muted); line-height: 1.6;"><%= pick(locale, "Корпус выдалбливается из цельного куска дерева для достижения идеального резонанса.", "Мінсіз резонансқа қол жеткізу үшін корпус тұтас ағаштан ойылады.") %></p>
+        </article>
+        <article>
+          <img src="https://images.pexels.com/photos/30472406/pexels-photo-30472406.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="Polishing">
+          <h4 style="font-family: var(--font-serif); font-size: 2rem; margin-bottom: 1.5rem;">02. <%= pick(locale, "Ручная полировка", "Қолмен жылтырату") %></h4>
+          <p style="color: var(--text-muted); line-height: 1.6;"><%= pick(locale, "Натуральные масла и смолы раскрывают глубину звучания и защищают инструмент.", "Табиғи майлар мен шайырлар дыбыс тереңдігін ашады және аспапты қорғайды.") %></p>
+        </article>
+        <article>
+          <img src="https://images.pexels.com/photos/30472395/pexels-photo-30472395.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="Acoustic Setup">
+          <h4 style="font-family: var(--font-serif); font-size: 2rem; margin-bottom: 1.5rem;">03. <%= pick(locale, "Акустическая настройка", "Акустикалық баптау") %></h4>
+          <p style="color: var(--text-muted); line-height: 1.6;"><%= pick(locale, "Мастер прислушивается к душе инструмента, доводя тембр до совершенства.", "Шебер аспаптың жан үнін тыңдап, тембрді кемеліне жеткізеді.") %></p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="wh-custom site-wrap">
+    <div class="wh-custom-head">
+      <span class="wh-pill"><%= pick(locale, "Индивидуальный заказ", "Жеке тапсырыс") %></span>
+      <h3 class="wh-custom-title"><%= pick(locale, "Домбра под вас — от эскиза до звучания", "Өзіңізге арналған домбыра — эскизден әуезге дейін") %></h3>
+      <p class="wh-custom-sub">
+        <%= pick(
+          locale,
+          "Заполните параметры — мастер свяжется с вами, уточнит детали и предложит варианты материалов и орнамента.",
+          "Параметрлерді таңдаңыз — шебер хабарласып, детальдарын нақтылап, ағаш пен ою нұсқаларын ұсынады."
+        ) %>
+      </p>
+    </div>
+
+    <div class="wh-custom-grid">
+      <div class="wh-contact-cards">
+        <article class="wh-contact-card">
+          <div class="wh-contact-icon"><i class="fa-solid fa-location-dot"></i></div>
+          <div class="wh-contact-body">
+            <div class="wh-contact-kicker"><%= pick(locale, "Адрес мастерской", "Шеберхана мекенжайы") %></div>
+            <div class="wh-contact-main"><%= pick(locale, "г. Алматы, пр. Абая 150", "Алматы қ., Абай даңғылы 150") %></div>
+          </div>
+          <a class="wh-contact-action" href="https://2gis.kz/almaty/search/%D0%90%D0%B1%D0%B0%D1%8F%20150" target="_blank" rel="noreferrer"><%= pick(locale, "Маршрут", "Бағыт") %></a>
+        </article>
+
+        <article class="wh-contact-card">
+          <div class="wh-contact-icon"><i class="fa-solid fa-phone"></i></div>
+          <div class="wh-contact-body">
+            <div class="wh-contact-kicker"><%= pick(locale, "Телефон", "Телефон") %></div>
+            <div class="wh-contact-main">+7 (777) 123-45-67</div>
+          </div>
+          <a class="wh-contact-action" href="tel:+77771234567"><%= pick(locale, "Позвонить", "Қоңырау шалу") %></a>
+        </article>
+
+        <article class="wh-contact-card">
+          <div class="wh-contact-icon"><i class="fa-brands fa-whatsapp"></i></div>
+          <div class="wh-contact-body">
+            <div class="wh-contact-kicker">WhatsApp</div>
+            <div class="wh-contact-main">+7 (777) 123-45-67</div>
+          </div>
+          <a class="wh-contact-action" href="https://wa.me/77771234567" target="_blank" rel="noreferrer"><%= pick(locale, "Написать", "Жазу") %></a>
+        </article>
+      </div>
+
+      <article class="wh-form-card">
+        <h4 class="wh-form-title"><%= pick(locale, "Заявка на изготовление", "Жасауға өтінім") %></h4>
+
+        <% if (!user || user.role === 'admin') { %>
+          <div class="wh-locked">
+            <div class="wh-locked-icon"><i class="fa-solid fa-lock"></i></div>
+            <div class="wh-locked-body">
+              <div class="wh-locked-title"><%= pick(locale, "Заявка доступна только авторизованным", "Өтінім тек аккаунтқа кіргендерге қолжетімді") %></div>
+              <div class="wh-locked-sub"><%= pick(locale, "Войдите, чтобы отправить параметры домбры и получить предложение мастера.", "Домбыра параметрлерін жіберіп, шебердің ұсынысын алу үшін кіріңіз.") %></div>
+            </div>
+            <% if (!user) { %>
+              <a class="btn-prime wh-locked-cta" href="/login?next=/workshop"><%= pick(locale, "Войти", "Кіру") %></a>
+            <% } %>
+          </div>
+        <% } else { %>
+        <form id="custom-order-form" class="wh-form">
+          <div class="wh-form-grid">
+            <div class="field">
+              <label><%= pick(locale, "Ваше имя", "Атыңыз") %></label>
+              <input name="customerName" value="<%= user ? user.full_name : '' %>" placeholder="<%= pick(locale, "Арман Ибраев", "Арман Ибраев") %>" required />
+            </div>
+            <div class="field">
+              <label><%= pick(locale, "Телефон", "Телефон") %></label>
+              <input name="phone" value="<%= user && user.phone ? user.phone : '' %>" placeholder="+7 (7__) ___-__-__" required inputmode="tel" autocomplete="tel" data-mask="kz-phone" maxlength="18" />
+            </div>
+            <div class="field">
+              <label>Email</label>
+              <input type="email" name="email" value="<%= user ? user.email : '' %>" placeholder="example@mail.kz" />
+            </div>
+            <div class="field">
+              <label><%= pick(locale, "Город", "Қала") %></label>
+              <input name="city" value="<%= user && user.city ? user.city : '' %>" placeholder="<%= pick(locale, "Алматы", "Алматы") %>" required />
+            </div>
+
+            <div class="field">
+              <label><%= pick(locale, "Количество струн", "Ішек саны") %></label>
+              <select name="stringCount" required>
+                <option value="2"><%= pick(locale, "2 струны (классика)", "2 ішек (классика)") %></option>
+                <option value="3"><%= pick(locale, "3 струны", "3 ішек") %></option>
+              </select>
+            </div>
+            <div class="field">
+              <label><%= pick(locale, "Рука", "Қол") %></label>
+              <select name="handedness" required>
+                <option value="right"><%= pick(locale, "Правша", "Оңқай") %></option>
+                <option value="left"><%= pick(locale, "Левша", "Солақай") %></option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label><%= pick(locale, "Мензура", "Мензура") %></label>
+              <select name="scaleLength" required>
+                <option value="standard"><%= pick(locale, "Стандарт", "Стандарт") %></option>
+                <option value="short"><%= pick(locale, "Короткая", "Қысқа") %></option>
+                <option value="long"><%= pick(locale, "Длинная", "Ұзын") %></option>
+              </select>
+            </div>
+            <div class="field">
+              <label><%= pick(locale, "Вид дерева", "Ағаш түрі") %></label>
+              <select name="woodType" required>
+                <option value=""><%= pick(locale, "Выберите", "Таңдаңыз") %></option>
+                <option value="Тянь-Шаньская ель"><%= pick(locale, "Тянь-Шаньская ель", "Тянь-Шань шыршасы") %></option>
+                <option value="Орех"><%= pick(locale, "Орех", "Жаңғақ") %></option>
+                <option value="Клён"><%= pick(locale, "Клён", "Үйеңкі") %></option>
+                <option value="Абрикос"><%= pick(locale, "Абрикос", "Өрік") %></option>
+                <option value="Красное дерево"><%= pick(locale, "Красное дерево", "Қызыл ағаш") %></option>
+                <option value="Комбинированный"><%= pick(locale, "Комбинированный", "Аралас") %></option>
+              </select>
+            </div>
+            <div class="field">
+              <label><%= pick(locale, "Стиль корпуса", "Корпус стилі") %></label>
+              <select name="bodyStyle" required>
+                <option value=""><%= pick(locale, "Выберите", "Таңдаңыз") %></option>
+                <option value="Классическая"><%= pick(locale, "Классическая", "Классикалық") %></option>
+                <option value="Концертная"><%= pick(locale, "Концертная", "Концерттік") %></option>
+                <option value="Премиум резонанс"><%= pick(locale, "Премиум резонанс", "Премиум резонанс") %></option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label><%= pick(locale, "Декор / Орнамент", "Ою / Әшекей") %></label>
+              <select name="decoration" required>
+                <option value=""><%= pick(locale, "Выберите", "Таңдаңыз") %></option>
+                <option value="Минимализм"><%= pick(locale, "Минимализм", "Минимализм") %></option>
+                <option value="Традиционный орнамент"><%= pick(locale, "Традиционный орнамент", "Дәстүрлі ою") %></option>
+                <option value="Инкрустация"><%= pick(locale, "Инкрустация", "Инкрустация") %></option>
+              </select>
+            </div>
+            <div class="field">
+              <label><%= pick(locale, "Покрытие", "Қаптама") %></label>
+              <select name="finish" required>
+                <option value=""><%= pick(locale, "Выберите", "Таңдаңыз") %></option>
+                <option value="Натуральный шеллак"><%= pick(locale, "Натуральный шеллак", "Табиғи шеллак") %></option>
+                <option value="Матовый лак"><%= pick(locale, "Матовый лак", "Күңгірт лак") %></option>
+                <option value="Глянец"><%= pick(locale, "Глянец", "Жылтыр") %></option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label><%= pick(locale, "Чехол / кейс", "Қап / кейс") %></label>
+              <select name="caseIncluded" required>
+                <option value="yes"><%= pick(locale, "Да, нужен", "Иә, керек") %></option>
+                <option value="no"><%= pick(locale, "Нет", "Жоқ") %></option>
+              </select>
+            </div>
+            <div class="field">
+              <label><%= pick(locale, "Желаемый срок", "Қалаған мерзім") %></label>
+              <select name="deadline" required>
+                <option value="no_rush"><%= pick(locale, "Без спешки", "Асықпай") %></option>
+                <option value="1m"><%= pick(locale, "До 1 месяца", "1 айға дейін") %></option>
+                <option value="2m"><%= pick(locale, "1–2 месяца", "1–2 ай") %></option>
+                <option value="3m"><%= pick(locale, "2–3 месяца", "2–3 ай") %></option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label><%= pick(locale, "Бюджет (₸)", "Бюджет (₸)") %></label>
+              <input type="number" name="budget" min="50000" step="5000" placeholder="390000" required />
+            </div>
+            <div class="field">
+              <label><%= pick(locale, "Как связаться", "Қалай байланысу") %></label>
+              <select name="contactMethod" required>
+                <option value="phone"><%= pick(locale, "Звонок", "Қоңырау") %></option>
+                <option value="whatsapp">WhatsApp</option>
+                <option value="email">Email</option>
+              </select>
+            </div>
+
+            <div class="field wh-full">
+              <label><%= pick(locale, "Пожелания", "Тілектер") %></label>
+              <textarea name="notes" rows="4" placeholder="<%= pick(locale, "Опишите желаемое звучание, стиль игры, праворукая/леворукая, гравировка и т.д.", "Қалаған әуез, орындау стилі, оңқай/солақай, гравировка және т.б.") %>"></textarea>
+            </div>
+          </div>
+
+          <div class="wh-form-actions">
+            <button id="custom-order-submit" type="button" class="btn-prime" onclick="submitCustomOrder()">
+              <%= pick(locale, "Отправить заявку", "Өтінімді жіберу") %>
+            </button>
+            <div class="wh-form-note">
+              <%= pick(locale, "Обычно отвечаем в течение 1 рабочего дня.", "Әдетте 1 жұмыс күні ішінде жауап береміз.") %>
+            </div>
+          </div>
+        </form>
+        <% } %>
+      </article>
+    </div>
+  </section>
+</main>
+
+<script>
+async function submitCustomOrder() {
+  const form = document.getElementById('custom-order-form');
+  if (!form) {
+    window.location.href = '/login?next=/workshop';
+    return;
+  }
+  const btn = document.getElementById('custom-order-submit');
+  const data = Object.fromEntries(new FormData(form).entries());
+  if (!data.customerName || !data.phone || !data.city) {
+    return showToast('<%= pick(locale, "Заполните обязательные поля", "Міндетті өрістерді толтырыңыз") %>', 'error');
+  }
+
+  if (btn) {
+    btn.disabled = true;
+    btn.style.opacity = '0.75';
+    btn.textContent = '<%= pick(locale, "Отправка...", "Жіберілуде...") %>';
+  }
+
+  let res;
+  try {
+    res = await fetch('/api/custom-orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ...data,
+        budget: Number(data.budget || 0)
+      })
+    });
+  } catch (e) {
+    if (btn) {
+      btn.disabled = false;
+      btn.style.opacity = '';
+      btn.textContent = '<%= pick(locale, "Отправить заявку", "Өтінімді жіберу") %>';
+    }
+    return showToast('<%= pick(locale, "Ошибка сети. Попробуйте еще раз.", "Желі қатесі. Қайта көріңіз.") %>', 'error');
+  }
+
+  const json = await res.json().catch(() => ({}));
+  if (res.ok) {
+    form.reset();
+    showToast(json.message || '<%= pick(locale, "Заявка отправлена", "Өтінім жіберілді") %>');
+  } else {
+    showToast(json.error || '<%= pick(locale, "Ошибка отправки", "Жіберу қатесі") %>', 'error');
+  }
+
+  if (btn) {
+    btn.disabled = false;
+    btn.style.opacity = '';
+    btn.textContent = '<%= pick(locale, "Отправить заявку", "Өтінімді жіберу") %>';
+  }
+}
+</script>
+
+<%- include('partials/foot') %>

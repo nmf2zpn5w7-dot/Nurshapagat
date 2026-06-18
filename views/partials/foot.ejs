@@ -1,0 +1,90 @@
+        <%- include('./footer.ejs') %>
+    </div>
+    <script>
+    (function initPasswordToggles() {
+        const inputs = Array.from(document.querySelectorAll('input[type="password"]'));
+        if (!inputs.length) return;
+
+        inputs.forEach((input) => {
+            const field = input.closest('.field') || input.parentElement;
+            if (!field || field.querySelector('.pw-toggle')) return;
+
+            field.classList.add('pw-field');
+            input.classList.add('pw-input');
+
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'pw-toggle';
+            btn.setAttribute('aria-label', 'Показать пароль');
+            btn.innerHTML = '<i class="fa-regular fa-eye"></i>';
+
+            btn.addEventListener('click', () => {
+                const isHidden = input.type === 'password';
+                input.type = isHidden ? 'text' : 'password';
+                btn.setAttribute('aria-label', isHidden ? 'Скрыть пароль' : 'Показать пароль');
+                btn.innerHTML = isHidden ? '<i class="fa-regular fa-eye-slash"></i>' : '<i class="fa-regular fa-eye"></i>';
+                input.focus();
+            });
+
+            field.appendChild(btn);
+        });
+    })();
+    </script>
+    <script>
+    (function initInputMasks() {
+        function digitsOnly(v) { return String(v || '').replace(/[^\d]/g, ''); }
+        function clampLen(s, n) { return s.length > n ? s.slice(0, n) : s; }
+
+        function formatCard(v) {
+            const d = clampLen(digitsOnly(v), 19);
+            const parts = [];
+            for (let i = 0; i < d.length; i += 4) parts.push(d.slice(i, i + 4));
+            return parts.join(' ').trim();
+        }
+
+        function formatCvc(v) {
+            return clampLen(digitsOnly(v), 3);
+        }
+
+        function formatKzPhone(v) {
+            let d = digitsOnly(v);
+            if (d.startsWith('8')) d = '7' + d.slice(1);
+            if (d.startsWith('7')) d = d.slice(1);
+            d = clampLen(d, 10);
+            const a = d.slice(0, 3);
+            const b = d.slice(3, 6);
+            const c = d.slice(6, 8);
+            const e = d.slice(8, 10);
+            let out = '+7';
+            if (a.length) out += ' (' + a;
+            if (a.length === 3) out += ')';
+            if (b.length) out += ' ' + b;
+            if (c.length) out += '-' + c;
+            if (e.length) out += '-' + e;
+            return out;
+        }
+
+        function bindMask(input) {
+            const mask = input.getAttribute('data-mask');
+            if (!mask) return;
+
+            const handler = () => {
+                const prev = input.value;
+                let next = prev;
+                if (mask === 'card') next = formatCard(prev);
+                if (mask === 'cvc') next = formatCvc(prev);
+                if (mask === 'kz-phone') next = formatKzPhone(prev);
+                if (mask === 'digits2') next = clampLen(digitsOnly(prev), 2);
+                if (mask === 'digits4') next = clampLen(digitsOnly(prev), 4);
+                if (next !== prev) input.value = next;
+            };
+            input.addEventListener('input', handler);
+            input.addEventListener('blur', handler);
+            handler();
+        }
+
+        document.querySelectorAll('input[data-mask]').forEach(bindMask);
+    })();
+    </script>
+</body>
+</html>

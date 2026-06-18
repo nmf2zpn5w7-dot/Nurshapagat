@@ -1,0 +1,52 @@
+<%- include('../partials/head') %>
+
+<main class="admin-page site-wrap">
+  <div class="admin-nav">
+    <a href="/admin/products"><%= pick(locale, "Товары", "Тауарлар") %></a>
+    <a href="/admin/orders"><%= pick(locale, "Заказы", "Тапсырыстар") %></a>
+    <a href="/admin/custom-orders"><%= pick(locale, "Заявки", "Өтінімдер") %></a>
+    <a href="/admin/users" class="active"><%= pick(locale, "Пользователи", "Қолданушылар") %></a>
+  </div>
+
+  <header style="display:flex; justify-content:space-between; align-items:flex-end; gap:2rem; margin-bottom: 4rem;">
+    <div>
+      <h1 style="font-size: 3rem;"><%= pick(locale, "Пользователи", "Қолданушылар") %></h1>
+      <p style="color:var(--text-muted); font-weight:650; margin-top:0.75rem;"><%= pick(locale, "Профили и роли", "Профиль және рөлдер") %></p>
+    </div>
+  </header>
+
+  <div style="background: white; border-radius: var(--radius-md); box-shadow: var(--shadow-soft); overflow: hidden; border: 1px solid var(--border-light);">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th><%= pick(locale, "Имя", "Аты") %></th>
+          <th>Email</th>
+          <th><%= pick(locale, "Телефон", "Телефон") %></th>
+          <th><%= pick(locale, "Роль", "Рөлі") %></th>
+          <th><%= pick(locale, "Действия", "Әрекеттер") %></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% users.forEach(u => { %>
+          <tr>
+            <td style="font-weight: 900; color: var(--text-muted);">#<%= u.id %></td>
+            <td style="font-weight: 900;"><%= u.full_name %></td>
+            <td style="color: var(--text-muted); font-weight: 700;"><%= u.email %></td>
+            <td style="color: var(--text-muted); font-weight: 700;"><%= u.phone %></td>
+            <td>
+              <span class="admin-badge <%= u.role === 'admin' ? 'badge-ok' : 'badge-pending' %>"><%= u.role %></span>
+            </td>
+            <td style="text-align:right;">
+              <a href="/admin/users/<%= u.id %>" class="btn-ghost" style="padding: 0.55rem 1rem; font-size: 0.7rem;">
+                <i class="fa-solid fa-pen-to-square"></i>
+              </a>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<%- include('../partials/foot') %>

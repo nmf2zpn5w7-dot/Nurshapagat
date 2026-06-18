@@ -1,0 +1,72 @@
+<%- include('../partials/head') %>
+
+<main class="admin-page site-wrap">
+    <div class="admin-nav">
+        <a href="/admin/products" class="active"><%= pick(locale, "Товары", "Тауарлар") %></a>
+        <a href="/admin/orders"><%= pick(locale, "Заказы", "Тапсырыстар") %></a>
+        <a href="/admin/custom-orders"><%= pick(locale, "Заявки", "Өтінімдер") %></a>
+        <a href="/admin/users"><%= pick(locale, "Пользователи", "Қолданушылар") %></a>
+    </div>
+
+    <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4rem;">
+        <h1 style="font-size: 3rem;"><%= pick(locale, "Управление товарами", "Тауарларды басқару") %></h1>
+        <a href="/admin/products/new" class="btn-prime" style="padding: 0.8rem 2rem; font-size: 0.8rem;">
+            <i class="fa-solid fa-plus" style="margin-right: 0.8rem;"></i><%= pick(locale, "Добавить", "Қосу") %>
+        </a>
+    </header>
+
+    <div style="background: white; border-radius: var(--radius-md); box-shadow: var(--shadow-soft); overflow: hidden; border: 1px solid var(--border-light);">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th><%= pick(locale, "Фото", "Фото") %></th>
+                    <th><%= pick(locale, "Название", "Атауы") %></th>
+                    <th><%= pick(locale, "Материал", "Материал") %></th>
+                    <th><%= pick(locale, "Цена", "Бағасы") %></th>
+                    <th><%= pick(locale, "Действия", "Әрекеттер") %></th>
+                </tr>
+            </thead>
+            <tbody>
+                <% products.forEach(product => { %>
+                <tr>
+                    <td style="font-weight: 700; color: var(--text-muted);">#<%= product.id %></td>
+                    <td>
+                        <img src="<%= product.image %>" width="60" height="60" style="object-fit: cover; border-radius: var(--radius-sm); box-shadow: var(--shadow-soft);">
+                    </td>
+                    <td style="font-weight: 700;"><%= product.name %></td>
+                    <td><span class="admin-badge" style="background: var(--bg-soft); color: var(--text-muted);"><%= product.material %></span></td>
+                    <td style="font-family: var(--font-serif); font-weight: 700; color: var(--gold-dark); font-size: 1.1rem;"><%= formatKzt(product.price) %></td>
+                    <td>
+                        <div style="display: flex; gap: 1rem;">
+                            <a href="/admin/products/<%= product.id %>" class="btn-ghost" style="padding: 0.5rem 1rem; font-size: 0.7rem; border-color: var(--border-light); color: var(--text-main);">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </a>
+                            <button onclick="deleteProduct(<%= product.id %>)" class="btn-ghost" style="padding: 0.5rem 1rem; font-size: 0.7rem; border-color: #fceaea; color: #e74c3c;">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+</main>
+
+<script>
+async function deleteProduct(id) {
+    if (!confirm('<%= pick(locale, "Вы уверены?", "Сенімдісіз бе?") %>')) return;
+    const res = await fetch('/admin/products/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id })
+    });
+    if (res.ok) {
+        showToast('<%= pick(locale, "Удалено", "Жойылды") %>');
+        window.location.reload();
+    }
+}
+</script>
+
+<%- include('../partials/foot') %>

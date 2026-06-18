@@ -1,0 +1,142 @@
+<%- include('../partials/head') %>
+
+<main class="admin-page site-wrap">
+  <div class="admin-nav">
+    <a href="/admin/products"><%= pick(locale, "Товары", "Тауарлар") %></a>
+    <a href="/admin/orders" class="active"><%= pick(locale, "Заказы", "Тапсырыстар") %></a>
+    <a href="/admin/custom-orders"><%= pick(locale, "Заявки", "Өтінімдер") %></a>
+    <a href="/admin/users"><%= pick(locale, "Пользователи", "Қолданушылар") %></a>
+  </div>
+
+  <header style="display:flex; justify-content:space-between; align-items:flex-end; gap:2rem; margin-bottom: 3rem;">
+    <div>
+      <h1 style="font-size: 3rem;"><%= pick(locale, "Заказ", "Тапсырыс") %> #DH-<%= String(order.id).padStart(4, '0') %></h1>
+      <p style="color:var(--text-muted); font-weight:650; margin-top:0.75rem;"><%= order.created_at %></p>
+    </div>
+    <a class="btn-ghost" href="/admin/orders" style="padding:0.8rem 1.5rem; font-size:0.75rem;"><%= pick(locale, "Назад", "Артқа") %></a>
+  </header>
+
+  <section style="display:grid; grid-template-columns: 1fr 420px; gap: 2.5rem; align-items:start;">
+    <article style="background: white; border-radius: var(--radius-md); box-shadow: var(--shadow-soft); border: 1px solid var(--border-light); padding: 2.5rem;">
+      <h2 style="font-size:1.4rem; margin-bottom: 1.8rem; color: var(--gold-dark);"><%= pick(locale, "Состав заказа", "Тапсырыс құрамы") %></h2>
+
+      <div style="display:grid; gap: 1rem;">
+        <% items.forEach(it => { %>
+          <div style="display:grid; grid-template-columns: 1fr auto; gap:0.4rem 1.2rem; padding: 1rem 0; border-bottom: 1px solid var(--border-light);">
+            <div style="font-weight: 900;"><%= it.title %></div>
+            <div style="text-align:right; font-weight: 900; color: var(--gold-dark); grid-row: span 2; align-self:center;"><%= formatKzt(it.price * it.quantity) %></div>
+            <div style="color: var(--text-muted); font-weight: 700;"><%= it.quantity %> × <%= formatKzt(it.price) %></div>
+          </div>
+        <% }) %>
+      </div>
+    </article>
+
+    <aside style="display:grid; gap: 1.5rem;">
+      <article style="background: white; border-radius: var(--radius-md); box-shadow: var(--shadow-soft); border: 1px solid var(--border-light); padding: 2rem;">
+        <h3 style="font-size:1.2rem; margin-bottom: 1.5rem; color: var(--gold-dark);"><%= pick(locale, "Клиент", "Клиент") %></h3>
+        <div style="display:grid; gap:0.6rem; color: var(--text-muted); font-weight:700;">
+          <div><strong style="color:var(--bg-deep)"><%= order.customer_name %></strong></div>
+          <div><%= order.phone %></div>
+          <div><%= order.email || "—" %></div>
+          <div><%= order.city %></div>
+          <div><%= order.address %></div>
+        </div>
+      </article>
+
+      <article style="background: white; border-radius: var(--radius-md); box-shadow: var(--shadow-soft); border: 1px solid var(--border-light); padding: 2rem;">
+        <h3 style="font-size:1.2rem; margin-bottom: 1.5rem; color: var(--gold-dark);"><%= pick(locale, "Статусы", "Мәртебелер") %></h3>
+
+        <div style="display:grid; gap: 1rem;">
+          <div class="field">
+            <label style="display:block; font-size:0.75rem; font-weight:900; text-transform:uppercase; letter-spacing:0.1em; color: var(--text-muted); margin-bottom:0.6rem;"><%= pick(locale, "Статус заказа", "Тапсырыс мәртебесі") %></label>
+            <select onchange="updateOrder({ status: this.value })" style="width:100%; padding: 1rem 1.1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-light); background: var(--bg-soft); font-weight: 800;">
+              <% const stOps = [
+                { id: 'new', title: pick(locale, 'Новый заказ', 'Жаңа тапсырыс') },
+                { id: 'accepted', title: pick(locale, 'Принят мастером', 'Шебер қабылдады') },
+                { id: 'tuning', title: pick(locale, 'Настройка инструмента', 'Аспапты баптау') },
+                { id: 'packing', title: pick(locale, 'Упаковка', 'Қаптау') },
+                { id: 'delivery', title: pick(locale, 'Передан в доставку', 'Жеткізуге берілді') },
+                { id: 'transit', title: pick(locale, 'В пути', 'Жолда') },
+                { id: 'delivered', title: pick(locale, 'Доставлено', 'Жеткізілді') },
+                { id: 'canceled', title: pick(locale, 'Отменен', 'Бас тартылды') }
+              ]; %>
+              <% stOps.forEach(op => { %>
+                <option value="<%= op.id %>" <%= order.status === op.id ? 'selected' : '' %>><%= op.title %></option>
+              <% }) %>
+            </select>
+          </div>
+
+          <div class="field">
+            <label style="display:block; font-size:0.75rem; font-weight:900; text-transform:uppercase; letter-spacing:0.1em; color: var(--text-muted); margin-bottom:0.6rem;"><%= pick(locale, "Статус оплаты", "Төлем мәртебесі") %></label>
+            <select onchange="updateOrder({ payment_status: this.value })" style="width:100%; padding: 1rem 1.1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-light); background: var(--bg-soft); font-weight: 800;">
+              <% const payOps = [
+                { id: 'pending', title: pick(locale, 'Ожидает оплаты', 'Төлем күтілуде') },
+                { id: 'paid', title: pick(locale, 'Оплачено', 'Төленді') },
+                { id: 'failed', title: pick(locale, 'Ошибка оплаты', 'Төлем қатесі') },
+                { id: 'refunded', title: pick(locale, 'Возврат', 'Қайтарым') }
+              ]; %>
+              <% payOps.forEach(op => { %>
+                <option value="<%= op.id %>" <%= order.payment_status === op.id ? 'selected' : '' %>><%= op.title %></option>
+              <% }) %>
+            </select>
+          </div>
+
+          <div class="field">
+            <label style="display:block; font-size:0.75rem; font-weight:900; text-transform:uppercase; letter-spacing:0.1em; color: var(--text-muted); margin-bottom:0.6rem;"><%= pick(locale, "Доставка", "Жеткізу") %></label>
+            <select onchange="updateOrder({ delivery_method: this.value })" style="width:100%; padding: 1rem 1.1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-light); background: var(--bg-soft); font-weight: 800;">
+              <option value="express" <%= order.delivery_method === 'express' ? 'selected' : '' %>><%= pick(locale, 'Экспресс (1–2 дня)', 'Экспресс (1–2 күн)') %></option>
+              <option value="standard" <%= order.delivery_method === 'standard' ? 'selected' : '' %>><%= pick(locale, 'Стандарт (3–5 дней)', 'Стандарт (3–5 күн)') %></option>
+              <option value="pickup" <%= order.delivery_method === 'pickup' ? 'selected' : '' %>><%= pick(locale, 'Самовывоз', 'Алып кету') %></option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label style="display:block; font-size:0.75rem; font-weight:900; text-transform:uppercase; letter-spacing:0.1em; color: var(--text-muted); margin-bottom:0.6rem;"><%= pick(locale, "Метод оплаты", "Төлем әдісі") %></label>
+            <select onchange="updateOrder({ payment_method: this.value })" style="width:100%; padding: 1rem 1.1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-light); background: var(--bg-soft); font-weight: 800;">
+              <option value="card" <%= order.payment_method === 'card' ? 'selected' : '' %>><%= pick(locale, 'Банковская карта', 'Банк картасы') %></option>
+              <option value="kaspi_qr" <%= order.payment_method === 'kaspi_qr' ? 'selected' : '' %>>Kaspi QR</option>
+              <option value="installments" <%= order.payment_method === 'installments' ? 'selected' : '' %>>Kaspi <%= pick(locale, 'Рассрочка', 'Бөліп төлеу') %></option>
+            </select>
+          </div>
+        </div>
+
+        <div style="margin-top: 1.2rem; color: var(--text-muted); font-weight: 700;">
+          <div><%= pick(locale, "Ссылка оплаты", "Төлем сілтемесі") %>: <strong style="color:var(--bg-deep)"><%= order.payment_ref || "—" %></strong></div>
+        </div>
+
+        <div style="display:flex; gap: 0.75rem; margin-top: 1.75rem;">
+          <button type="button" class="btn-ghost" style="border-color:#fceaea; color:#e74c3c; padding:0.9rem 1.2rem; font-size:0.75rem;" onclick="deleteOrder()"><%= pick(locale, "Удалить", "Жою") %></button>
+          <a class="btn-prime" style="padding:0.9rem 1.2rem; font-size:0.75rem; text-align:center;" href="/tracking?code=DH-<%= String(order.id).padStart(4, '0') %>&contact=<%= encodeURIComponent(order.email || order.phone || '') %>"><%= pick(locale, "Открыть трекинг", "Трекинг ашу") %></a>
+        </div>
+      </article>
+    </aside>
+  </section>
+</main>
+
+<script>
+async function updateOrder(patch) {
+  const res = await fetch('/admin/orders/update', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id: <%= order.id %>, ...patch })
+  });
+  if (res.ok) {
+    showToast('<%= pick(locale, "Обновлено", "Жаңартылды") %>');
+    window.location.reload();
+  } else {
+    const data = await res.json().catch(() => ({}));
+    showToast(data.error || 'Error', 'error');
+  }
+}
+
+async function deleteOrder() {
+  const ok = confirm('<%= pick(locale, "Удалить заказ?", "Тапсырысты жою керек пе?") %>');
+  if (!ok) return;
+  const res = await fetch('/admin/orders/<%= order.id %>/delete', { method: 'POST' });
+  if (res.ok) {
+    window.location.href = '/admin/orders';
+  }
+}
+</script>
+
+<%- include('../partials/foot') %>

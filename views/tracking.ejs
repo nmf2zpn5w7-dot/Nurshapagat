@@ -1,0 +1,115 @@
+<%- include('partials/head') %>
+
+<main class="tr-page site-wrap">
+  <section class="tr-main">
+    <div class="tr-head">
+      <span style="color: var(--gold-primary); font-weight: 800; text-transform: uppercase; letter-spacing: 0.3em; font-size: 0.8rem; margin-bottom: 1.5rem; display: block;"><%= pick(locale, "Служба доставки", "Жеткізу қызметі") %></span>
+      <h1><%= pick(locale, "Отслеживание заказа", "Тапсырысты бақылау") %></h1>
+      <p style="color: var(--text-muted); font-size: 1.1rem; max-width: 600px; margin: 0 auto;">
+        <%= pick(locale, "Введите данные вашего заказа для получения актуального статуса изготовления и доставки.", "Өндіру және жеткізу мәртебесін көру үшін тапсырыс деректерін енгізіңіз.") %>
+      </p>
+    </div>
+
+    <form class="tr-search" action="/tracking" method="get">
+      <div class="field">
+        <label><%= pick(locale, "Номер заказа", "Тапсырыс нөмірі") %></label>
+        <input name="code" value="<%= code %>" placeholder="DH-1234" required />
+      </div>
+      <div class="field">
+        <label><%= pick(locale, "Email или Телефон", "Email немесе Телефон") %></label>
+        <input name="contact" value="<%= contact %>" placeholder="example@mail.kz" required />
+      </div>
+      <button type="submit" class="btn-prime" style="border-radius: var(--radius-sm); padding: 1.1rem 2.5rem;">
+        <i class="fa-solid fa-magnifying-glass" style="margin-right: 0.8rem;"></i><%= pick(locale, "Найти", "Табу") %>
+      </button>
+    </form>
+
+    <% if (data) { %>
+      <section class="tr-steps">
+        <div class="tr-line"></div>
+        <div class="tr-steps-grid">
+          <% steps.forEach(step => { %>
+            <div class="tr-step">
+              <div class="tr-dot <%= step.done ? 'done' : '' %> <%= step.current ? 'current' : '' %>">
+                <i class="<%= step.icon %>"></i>
+              </div>
+              <p><%= step.title %></p>
+            </div>
+          <% }) %>
+        </div>
+      </section>
+
+      <div class="tr-cards">
+        <article class="tr-card">
+          <h3>ℹ <%= pick(locale, "Детали статуса", "Мәртебе мәліметі") %></h3>
+          <div class="tr-rows">
+            <div>
+              <span><%= pick(locale, "Текущий статус", "Ағымдағы мәртебе") %></span>
+              <strong style="color: var(--gold-dark);"><%= current.title %></strong>
+            </div>
+            <div>
+              <span><%= pick(locale, "Ожидаемая доставка", "Күтілетін жеткізу") %></span>
+              <strong><%= deliveryDate %></strong>
+            </div>
+            <div>
+              <span><%= pick(locale, "Курьерская служба", "Курьер қызметі") %></span>
+              <strong>Heritage Logistics VIP</strong>
+            </div>
+            <div>
+              <span><%= pick(locale, "Пункт назначения", "Жеткізу мекені") %></span>
+              <strong><%= data.order.city %>, <%= data.order.address %></strong>
+            </div>
+          </div>
+          <p class="tr-note">
+            <%= pick(
+              locale,
+              "✨ Инструмент прошел финальную проверку звука мастером и готовится к безопасной транспортировке в специальном кейсе.",
+              "✨ Аспап шеберден соңғы дыбыс тексеруінен өтті және арнайы кейсте қауіпсіз жеткізуге дайындалуда."
+            ) %>
+          </p>
+        </article>
+
+        <article class="tr-card">
+          <h3><%= pick(locale, "♫ Ваш инструмент", "♫ Сіздің аспабыңыз") %></h3>
+          <div class="tr-item">
+            <img
+              src="<%= product ? product.image : (first ? first.image : 'https://images.pexels.com/photos/30472395/pexels-photo-30472395.jpeg?auto=compress&cs=tinysrgb&w=1200') %>"
+              alt="<%= product ? product.name : (first ? first.title : '') %>"
+              style="box-shadow: var(--shadow-soft);"
+            />
+            <div>
+              <h4 style="font-family: var(--font-serif); font-size: 1.6rem;"><%= product ? product.name : (first ? first.title : '') %></h4>
+              <p style="font-weight: 700; color: var(--text-muted); margin: 0.5rem 0;">
+                <%= pick(locale, "Материал", "Материал") %>: <%= product ? product.material : pick(locale, "Натуральное дерево", "Табиғи ағаш") %>
+              </p>
+              <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">
+                <%= pick(locale, "Заказ", "Тапсырыс") %> №DH-<%= String(data.order.id).padStart(4, "0") %>
+              </p>
+              <strong style="font-size: 1.4rem; color: var(--gold-dark); font-family: var(--font-serif);"><%= formatKzt(first.price * first.quantity) %></strong>
+            </div>
+          </div>
+          <div class="tr-help">
+            <div>
+              <b style="display: block; margin-bottom: 0.2rem;"><%= pick(locale, "Нужна помощь?", "Көмек керек пе?") %></b>
+              <p style="font-size: 0.85rem; color: var(--text-muted);"><%= pick(locale, "Наш мастер на связи 24/7", "Біздің шебер 24/7 байланыста") %></p>
+            </div>
+            <button type="button" class="btn-ghost" style="padding: 0.8rem 1.5rem; font-size: 0.7rem;">
+              <i class="fa-solid fa-headset" style="margin-right: 0.5rem;"></i><%= pick(locale, "Связаться", "Байланысу") %>
+            </button>
+          </div>
+        </article>
+      </div>
+    <% } else { %>
+      <div style="text-align: center; padding: 10rem 0; background: var(--bg-soft); border-radius: var(--radius-lg); margin-top: 4rem;">
+        <div style="font-size: 4rem; margin-bottom: 2rem;">🔍</div>
+        <p style="font-weight: 700; color: var(--text-muted); font-size: 1.1rem;">
+          <%= (code || contact)
+            ? pick(locale, "Заказ не найден. Проверьте данные.", "Тапсырыс табылмады. Деректерді тексеріңіз.")
+            : pick(locale, "Введите данные для отслеживания.", "Бақылау үшін деректерді енгізіңіз.") %>
+        </p>
+      </div>
+    <% } %>
+  </section>
+</main>
+
+<%- include('partials/foot') %>

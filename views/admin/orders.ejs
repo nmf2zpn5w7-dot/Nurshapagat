@@ -1,0 +1,102 @@
+<%- include('../partials/head') %>
+
+<main class="admin-page site-wrap">
+    <div class="admin-nav">
+        <a href="/admin/products"><%= pick(locale, "Товары", "Тауарлар") %></a>
+        <a href="/admin/orders" class="active"><%= pick(locale, "Заказы", "Тапсырыстар") %></a>
+        <a href="/admin/custom-orders"><%= pick(locale, "Заявки", "Өтінімдер") %></a>
+        <a href="/admin/users"><%= pick(locale, "Пользователи", "Қолданушылар") %></a>
+    </div>
+
+    <header style="display:flex; justify-content:space-between; align-items:flex-end; gap:2rem; margin-bottom: 4rem;">
+        <div>
+          <h1 style="font-size: 3rem;"><%= pick(locale, "Заказы", "Тапсырыстар") %></h1>
+          <p style="color:var(--text-muted); font-weight:650; margin-top:0.75rem;"><%= pick(locale, "Управление статусами, оплатой и доставкой", "Мәртебе, төлем және жеткізуді басқару") %></p>
+        </div>
+        <a class="btn-ghost" href="/admin/products" style="padding:0.8rem 1.5rem; font-size:0.75rem;"><%= pick(locale, "Товары", "Тауарлар") %></a>
+    </header>
+
+    <div style="background: white; border-radius: var(--radius-md); box-shadow: var(--shadow-soft); overflow: hidden; border: 1px solid var(--border-light);">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th><%= pick(locale, "Клиент", "Клиент") %></th>
+                    <th><%= pick(locale, "Сумма", "Сомасы") %></th>
+                    <th><%= pick(locale, "Оплата", "Төлем") %></th>
+                    <th><%= pick(locale, "Статус", "Мәртебе") %></th>
+                    <th><%= pick(locale, "Действия", "Әрекеттер") %></th>
+                </tr>
+            </thead>
+            <tbody>
+                <% orders.forEach(order => { %>
+                <tr>
+                    <td style="font-weight: 900; color: var(--text-muted);">#<%= order.id %></td>
+                    <td>
+                        <div style="font-weight: 900;"><%= order.customer_name %></div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted); font-weight:650;"><%= order.email || "—" %></div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted); font-weight:650;"><%= order.phone || "—" %></div>
+                    </td>
+                    <td style="font-family: var(--font-serif); font-weight: 900; color: var(--gold-dark); font-size: 1.1rem;"><%= formatKzt(order.total) %></td>
+                    <td>
+                      <div style="display:flex; flex-direction:column; gap:0.6rem;">
+                        <span class="admin-badge <%= order.payment_status === 'paid' ? 'badge-ok' : (order.payment_status === 'failed' ? 'badge-bad' : 'badge-pending') %>">
+                          <%= order.payment_status === 'paid' ? pick(locale, "Оплачено", "Төленді") : (order.payment_status === 'failed' ? pick(locale, "Ошибка", "Қате") : pick(locale, "Ожидает", "Күтілуде")) %>
+                        </span>
+                        <span class="admin-badge" style="background: var(--bg-soft); color: var(--text-muted);">
+                          <%= order.payment_method === 'kaspi_qr' ? "Kaspi QR" : (order.payment_method === 'installments' ? "Kaspi 0-0-12" : pick(locale, "Карта", "Карта")) %>
+                        </span>
+                      </div>
+                    </td>
+                    <td>
+                        <span class="admin-badge" style="background: var(--bg-soft); color: var(--text-muted);">
+                          <%= statusLabel(order.status, locale) %>
+                        </span>
+                    </td>
+                    <td>
+                        <div style="display:flex; gap: 0.75rem; align-items: center; justify-content: flex-end;">
+                            <a href="/admin/orders/<%= order.id %>" class="btn-ghost" style="padding: 0.55rem 1rem; font-size: 0.7rem;">
+                              <i class="fa-solid fa-eye"></i>
+                            </a>
+                            <select onchange="updateOrder(<%= order.id %>, { status: this.value })" style="padding: 0.55rem; border-radius: var(--radius-sm); border: 1px solid var(--border-light); font-size: 0.8rem; font-weight: 800;">
+                                <% const stOps = [
+                                  { id: 'new', title: pick(locale, 'Новый заказ', 'Жаңа тапсырыс') },
+                                  { id: 'accepted', title: pick(locale, 'Принят мастером', 'Шебер қабылдады') },
+                                  { id: 'tuning', title: pick(locale, 'Настройка инструмента', 'Аспапты баптау') },
+                                  { id: 'packing', title: pick(locale, 'Упаковка', 'Қаптау') },
+                                  { id: 'delivery', title: pick(locale, 'Передан в доставку', 'Жеткізуге берілді') },
+                                  { id: 'transit', title: pick(locale, 'В пути', 'Жолда') },
+                                  { id: 'delivered', title: pick(locale, 'Доставлено', 'Жеткізілді') },
+                                  { id: 'canceled', title: pick(locale, 'Отменен', 'Бас тартылды') }
+                                ]; %>
+                                <% stOps.forEach(op => { %>
+                                  <option value="<%= op.id %>" <%= order.status === op.id ? 'selected' : '' %>><%= op.title %></option>
+                                <% }) %>
+                            </select>
+                        </div>
+                    </td>
+                </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+</main>
+
+<script>
+async function updateOrder(id, patch) {
+    const res = await fetch('/admin/orders/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, ...patch })
+    });
+    if (res.ok) {
+        showToast('<%= pick(locale, "Обновлено", "Жаңартылды") %>');
+        window.location.reload();
+    } else {
+        const data = await res.json().catch(() => ({}));
+        showToast(data.error || 'Error', 'error');
+    }
+}
+</script>
+
+<%- include('../partials/foot') %>

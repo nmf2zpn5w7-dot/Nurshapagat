@@ -1,0 +1,224 @@
+<%- include('partials/head') %>
+
+<main class="qm-page site-wrap">
+  <div class="qm-main">
+    <aside class="qm-sidebar">
+      <h3><%= pick(locale, "Коллекция", "Жинақ") %></h3>
+
+      <form action="/catalog" method="get">
+        <div class="qm-filter-group">
+          <h4><%= pick(locale, "Тип домбры", "Домбыра түрі") %></h4>
+          <% const styleOps = [
+            { id: "all", title: pick(locale, "Все типы", "Барлық түр") },
+            { id: "Классическая", title: pick(locale, "Классическая", "Классикалық") },
+            { id: "Концертная", title: pick(locale, "Концертная", "Концерттік") },
+            { id: "Премиум резонанс", title: pick(locale, "Премиум резонанс", "Премиум резонанс") }
+          ]; %>
+          <div class="field" style="margin-top: 1.2rem;">
+            <select name="style" onchange="this.form.submit()">
+              <% styleOps.forEach(op => { %>
+                <option value="<%= op.id %>" <%= selectedStyle === op.id ? 'selected' : '' %>><%= op.title %></option>
+              <% }) %>
+            </select>
+          </div>
+        </div>
+
+        <div class="qm-filter-group">
+          <h4><%= pick(locale, "Вид дерева", "Ағаш түрі") %></h4>
+          <% const woodOps = [
+            { id: "all", title: pick(locale, "Все варианты", "Барлығы") },
+            { id: "Тянь-Шаньская ель", title: pick(locale, "Тянь-Шаньская ель", "Тянь-Шань шыршасы") },
+            { id: "Орех", title: pick(locale, "Орех", "Жаңғақ") },
+            { id: "Клён", title: pick(locale, "Клён", "Үйеңкі") },
+            { id: "Абрикос", title: pick(locale, "Абрикос", "Өрік") },
+            { id: "Красное дерево", title: pick(locale, "Красное дерево", "Қызыл ағаш") },
+            { id: "Комбинированный", title: pick(locale, "Комбинированный", "Аралас") }
+          ]; %>
+          <div class="field" style="margin-top: 1.2rem;">
+            <select name="material" onchange="this.form.submit()">
+              <% woodOps.forEach(op => { %>
+                <option value="<%= op.id %>" <%= selectedMaterial === op.id ? 'selected' : '' %>><%= op.title %></option>
+              <% }) %>
+            </select>
+          </div>
+        </div>
+      </form>
+    </aside>
+
+    <div class="qm-content">
+      <div class="qm-header">
+        <h1 style="font-size:4.5rem;"><%= pick(locale, "Каталог", "Каталог") %></h1>
+        <div style="color:var(--text-muted); font-weight:700; letter-spacing:0.1em; text-transform:uppercase; font-size:0.85rem; padding-bottom: 0.8rem;">
+          <%= products.length %> <%= pick(locale, "инструментов", "аспап") %>
+        </div>
+      </div>
+
+      <div class="qm-grid">
+        <% products.forEach(item => { %>
+          <article class="qm-card">
+            <a href="/product/<%= item.id %>" class="qm-card-image-wrap">
+              <img src="<%= item.image %>" alt="<%= item.name %>" class="qm-card-image">
+            </a>
+            <div class="qm-card-body">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.2rem;">
+                <span style="font-size:0.75rem; font-weight:800; text-transform:uppercase; letter-spacing:0.15em; color:var(--gold-primary);"><%= item.material %></span>
+                <div style="display:flex; gap:1rem; align-items:center;">
+                  <button onclick="playPreview('<%= item.audio_url || '' %>', this)" class="qm-preview-btn" style="background:none; border:none; cursor:pointer; color:var(--gold-primary); font-size:1.2rem;">
+                    <i class="fa-solid fa-play"></i>
+                  </button>
+                  <% if (!user || user.role !== 'admin') { %>
+                    <button onclick="toggleFav(<%= item.id %>, this)" style="background:none; border:none; cursor:pointer; color:var(--gold-primary); font-size:1.4rem; transition: var(--transition-smooth);">
+                      <i class="<%= user && data?.favorites?.some(f => f.id === item.id) ? 'fa-solid' : 'fa-regular' %> fa-heart"></i>
+                    </button>
+                  <% } %>
+                </div>
+              </div>
+              <h3 style="font-size: 1.8rem; margin-bottom: 1.5rem;"><%= item.name %></h3>
+              <div class="qm-card-bottom">
+                <strong><%= formatKzt(item.price) %></strong>
+                <% if (!user || user.role !== 'admin') { %>
+                  <button class="qm-cart-btn" onclick="addToCart(<%= JSON.stringify({id: item.id, name: item.name, price: item.price, image: item.image}) %>)">
+                    <i class="fa-solid fa-plus"></i>
+                  </button>
+                <% } %>
+              </div>
+            </div>
+          </article>
+        <% }) %>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+function addToCart(product) {
+    let cart = JSON.parse(localStorage.getItem('aspap-cart-v1') || '[]');
+    const existing = cart.find(item => item.id === product.id);
+    if (existing) {
+        existing.qty += 1;
+    } else {
+        cart.push({...product, qty: 1});
+    }
+    localStorage.setItem('aspap-cart-v1', JSON.stringify(cart));
+    updateCartCount();
+    showToast('<%= pick(locale, "Товар добавлен в корзину", "Тауар себетке қосылды") %>');
+}
+
+async function toggleFav(productId, btn) {
+    <% if (!user) { %>
+        window.location.href = '/login?next=' + encodeURIComponent(window.location.pathname);
+        return;
+    <% } %>
+    
+    const res = await fetch('/api/favorites/toggle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId })
+    });
+    
+    if (res.ok) {
+        const data = await res.json();
+        const icon = btn.querySelector('i');
+        if (data.status === 'added') {
+            icon.classList.replace('fa-regular', 'fa-solid');
+        } else {
+            icon.classList.replace('fa-solid', 'fa-regular');
+        }
+        showToast(data.status === 'added' ? 
+            '<%= pick(locale, "Добавлено в избранное", "Таңдаулыларға қосылды") %>' : 
+            '<%= pick(locale, "Удалено из избранного", "Таңдаулылардан алынды") %>'
+        );
+    }
+}
+
+function updateCartCount() {
+    let cart = JSON.parse(localStorage.getItem('aspap-cart-v1') || '[]');
+    const total = cart.reduce((sum, item) => sum + item.qty, 0);
+    const pill = document.getElementById('cart-count');
+    if (pill) pill.textContent = total;
+}
+
+document.addEventListener('DOMContentLoaded', updateCartCount);
+
+let currentAudio = null;
+let currentBtn = null;
+
+function playPreview(url, btn) {
+    console.log("Attempting to play local preview from URL:", url);
+    const icon = btn.querySelector('i');
+    
+    if (!url || url.includes('undefined')) {
+        showToast('<%= pick(locale, "Звук недоступен", "Дыбыс қолжетімсіз") %>', "error");
+        return;
+    }
+
+    // Ensure URL is absolute for local serving
+    const absoluteUrl = (url.startsWith('http') || url.startsWith('/')) ? url : '/' + url;
+
+    // If the same button is clicked
+    if (currentAudio && currentBtn === btn) {
+        if (currentAudio.paused) {
+            icon.classList.replace('fa-play', 'fa-spinner');
+            icon.classList.add('fa-spin');
+            currentAudio.play().then(() => {
+                icon.classList.remove('fa-spin');
+                icon.classList.replace('fa-spinner', 'fa-pause');
+            }).catch(e => {
+                console.error("Audio resume failed:", e);
+                icon.classList.remove('fa-spin');
+                icon.classList.replace('fa-spinner', 'fa-play');
+                showToast('<%= pick(locale, "Ошибка воспроизведения", "Дыбысты ойнату қатесі") %>', "error");
+            });
+        } else {
+            currentAudio.pause();
+            icon.classList.replace('fa-pause', 'fa-play');
+        }
+        return;
+    }
+
+    // If a different button is clicked, stop previous audio
+    if (currentAudio) {
+        currentAudio.pause();
+        if (currentBtn) {
+            const prevIcon = currentBtn.querySelector('i');
+            prevIcon.classList.remove('fa-spin', 'fa-pause', 'fa-spinner');
+            prevIcon.classList.add('fa-play');
+        }
+    }
+
+    // Initialize new audio
+    icon.classList.replace('fa-play', 'fa-spinner');
+    icon.classList.add('fa-spin');
+    
+    currentAudio = new Audio(absoluteUrl);
+    currentBtn = btn;
+    
+    currentAudio.play().then(() => {
+        console.log("Playback started successfully");
+        icon.classList.remove('fa-spin');
+        icon.classList.replace('fa-spinner', 'fa-pause');
+    }).catch(e => {
+        console.error("Audio playback failed at start:", e);
+        icon.classList.remove('fa-spin');
+        icon.classList.replace('fa-spinner', 'fa-play');
+        showToast('<%= pick(locale, "Ошибка загрузки", "Жүктеу қатесі") %>', "error");
+    });
+
+    currentAudio.addEventListener('ended', () => {
+        icon.classList.replace('fa-pause', 'fa-play');
+        currentAudio = null;
+        currentBtn = null;
+    });
+
+    currentAudio.addEventListener('error', (e) => {
+        console.error("Audio loading error:", e);
+        icon.classList.remove('fa-spin');
+        icon.classList.replace('fa-spinner', 'fa-play');
+        showToast('<%= pick(locale, "Ошибка аудио", "Аудио қатесі") %>', "error");
+        currentAudio = null;
+        currentBtn = null;
+    });
+}
+</script>
+
+<%- include('partials/foot') %>

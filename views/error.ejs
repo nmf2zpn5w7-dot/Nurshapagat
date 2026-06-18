@@ -1,0 +1,50 @@
+<%- include('partials/head') %>
+
+<main class="err-page">
+  <section class="site-wrap err-wrap">
+    <div class="err-card">
+      <h1 class="err-title"><%= title %></h1>
+      <p class="err-message"><%= message %></p>
+      <a href="/" class="err-btn"><%= pick(locale, "На главную", "Басты бет") %></a>
+    </div>
+  </section>
+</main>
+
+<style>
+.err-page {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.err-card {
+    text-align: center;
+    padding: 3rem;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    max-width: 500px;
+    width: 90%;
+}
+.err-title {
+    font-size: 6rem;
+    margin: 0;
+    font-family: var(--font-display), serif;
+    color: var(--accent);
+}
+.err-message {
+    font-size: 1.2rem;
+    color: var(--muted);
+    margin-bottom: 2rem;
+}
+.err-btn {
+    display: inline-block;
+    padding: 0.8rem 2rem;
+    background: var(--accent);
+    color: white;
+    border-radius: 12px;
+    font-weight: 700;
+}
+</style>
+
+<%- include('partials/foot') %>

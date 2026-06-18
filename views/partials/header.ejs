@@ -1,0 +1,142 @@
+<header class="site-header">
+  <div class="site-wrap site-header-inner">
+    <a href="/" class="site-brand">
+      <span>♪</span>Aspap.kz
+    </a>
+
+    <nav class="site-nav">
+      <% 
+        const isAdminUser = user && user.role === 'admin';
+        const links = isAdminUser
+          ? [
+              { href: "/", label: locale === "kk" ? "Басты бет" : "Главная" },
+              { href: "/catalog", label: locale === "kk" ? "Каталог" : "Каталог" },
+              { href: "/admin/orders", label: locale === "kk" ? "Әкімші панелі" : "Админ" }
+            ]
+          : [
+              { href: "/", label: locale === "kk" ? "Басты бет" : "Главная" },
+              { href: "/catalog", label: locale === "kk" ? "Каталог" : "Каталог" },
+              { href: "/workshop", label: locale === "kk" ? "Шеберхана" : "Мастерская" },
+              { href: "/tracking", label: locale === "kk" ? "Бақылау" : "Отслеживание" },
+              { href: "/account", label: locale === "kk" ? "Жеке кабинет" : "Кабинет" }
+            ];
+      %>
+      <% links.forEach(link => { %>
+        <a href="<%= link.href %>" class="<%= (path === link.href || (link.href !== '/' && path.startsWith(link.href))) ? 'active' : '' %>">
+          <%= link.label %>
+        </a>
+      <% }) %>
+    </nav>
+
+    <div class="site-header-actions">
+      <div class="site-locale-switch">
+        <button type="button" class="<%= locale === 'ru' ? 'active' : '' %>" onclick="setLanguage('ru')">RU</button>
+        <button type="button" class="<%= locale === 'kk' ? 'active' : '' %>" onclick="setLanguage('kk')">KZ</button>
+      </div>
+
+      <% if (!isAdminUser) { %>
+        <a href="/cart" class="site-cart-link">
+          <i class="fa-solid fa-shopping-bag"></i>
+          <span class="site-cart-pill" id="cart-count">0</span>
+        </a>
+      <% } %>
+
+      <% if (user) { %>
+        <div class="user-menu" style="display:flex; align-items:center; gap:1.5rem; padding-left: 1.5rem; border-left: 1px solid rgba(255,255,255,0.1);">
+          <a href="<%= isAdminUser ? '/admin/orders' : '/account' %>" class="site-auth-link" style="display:flex; align-items:center; gap:1rem;">
+            <div style="width:36px; height:36px; background:var(--gold-primary); border-radius:50%; display:grid; place-items:center; color:white; font-weight:800; font-size:0.8rem; box-shadow: 0 0 15px rgba(197,160,89,0.3);">
+              <%= user.full_name[0] %>
+            </div>
+            <span class="user-name-hide" style="color:white; font-size:0.8rem; font-weight:700; text-transform:uppercase; letter-spacing:0.15em;"><%= isAdminUser ? (locale === 'kk' ? 'ӘКІМШІ' : 'АДМИН') : user.full_name.split(' ')[0] %></span>
+          </a>
+          <form action="/api/auth/logout" method="POST" style="display:inline;">
+            <button type="submit" style="background:none; border:none; color:rgba(255,255,255,0.4); cursor:pointer; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; transition: var(--transition-smooth);">
+              <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            </button>
+          </form>
+        </div>
+      <% } else { %>
+        <div style="display: flex; align-items: center; gap: 1.5rem;" class="user-name-hide">
+          <a href="/login" style="color:white; font-size:0.8rem; font-weight:700; text-transform:uppercase; letter-spacing:0.15em;"><%= locale === 'kk' ? 'Кіру' : 'Войти' %></a>
+          <a href="/register" class="btn-prime" style="padding: 0.7rem 1.8rem; font-size: 0.7rem; box-shadow: none;"><%= locale === 'kk' ? 'Тіркелу' : 'Регистрация' %></a>
+        </div>
+      <% } %>
+
+      <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+    </div>
+  </div>
+</header>
+
+<nav class="site-nav-mobile" id="mobile-nav">
+  <button onclick="toggleMobileMenu()" style="position:absolute; top:2rem; right:2rem; background:none; border:none; color:white; font-size:2rem;">
+    <i class="fa-solid fa-xmark"></i>
+  </button>
+  <% links.forEach(link => { %>
+    <a href="<%= link.href %>" class="<%= (path === link.href || (link.href !== '/' && path.startsWith(link.href))) ? 'active' : '' %>">
+      <%= link.label %>
+    </a>
+  <% }) %>
+  <hr style="border:none; border-top:1px solid rgba(255,255,255,0.1); margin: 2rem 0;">
+  <% if (!user) { %>
+    <a href="/login"><%= locale === 'kk' ? 'Кіру' : 'Войти' %></a>
+    <a href="/register"><%= locale === 'kk' ? 'Тіркелу' : 'Регистрация' %></a>
+  <% } else { %>
+    <a href="<%= isAdminUser ? '/admin/orders' : '/account' %>"><%= isAdminUser ? (locale === 'kk' ? 'Әкімші' : 'Админ') : (locale === 'kk' ? 'Жеке кабинет' : 'Личный кабинет') %></a>
+    <form action="/api/auth/logout" method="POST">
+      <button type="submit" style="background:none; border:none; color:white; font-size:1.5rem; font-family:var(--font-serif); font-weight:700; text-transform:uppercase; cursor:pointer; padding:0;">
+        <%= locale === 'kk' ? 'Шығу' : 'Выйти' %>
+      </button>
+    </form>
+  <% } %>
+</nav>
+
+<script>
+function toggleMobileMenu() {
+    const nav = document.getElementById('mobile-nav');
+    nav.classList.toggle('active');
+    document.body.style.overflow = nav.classList.contains('active') ? 'hidden' : '';
+}
+function setLanguage(lang) {
+    document.cookie = "NEXT_LOCALE=" + lang + "; path=/; max-age=31536000";
+    window.location.reload();
+}
+
+function updateCartCount() {
+    let cart = JSON.parse(localStorage.getItem('aspap-cart-v1') || '[]');
+    const total = cart.reduce((sum, item) => sum + item.qty, 0);
+    const pill = document.getElementById('cart-count');
+    if (pill) pill.textContent = total;
+}
+
+function showToast(message, type = 'success') {
+    Toastify({
+        text: message,
+        duration: 3000,
+        gravity: "top",
+        position: "right",
+        style: {
+            background: type === 'success' ? "#0f0b08" : "#d32f2f",
+            color: type === 'success' ? "#c5a059" : "#ffffff",
+            border: type === 'success' ? "1px solid #c5a059" : "none",
+            borderRadius: "12px",
+            fontFamily: "var(--font-sans)",
+            fontWeight: "700",
+            fontSize: "0.9rem",
+            boxShadow: "0 20px 50px rgba(0,0,0,0.2)"
+        }
+    }).showToast();
+}
+
+document.addEventListener('DOMContentLoaded', updateCartCount);
+
+window.addEventListener('scroll', () => {
+    const header = document.querySelector('.site-header');
+    if (window.scrollY > 50) {
+        header.classList.add('scrolled');
+    } else {
+        header.classList.remove('scrolled');
+    }
+});
+</script>

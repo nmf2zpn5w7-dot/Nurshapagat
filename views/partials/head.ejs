@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="<%= locale %>">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= typeof title !== 'undefined' ? title + ' | Aspap.kz' : 'Aspap.kz' %></title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Manrope:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/globals.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <style>
+        :root {
+            --font-display: 'Cormorant Garamond', serif;
+            --font-sans: 'Manrope', sans-serif;
+        }
+        
+        @media (max-width: 768px) {
+            .user-name-hide { display: none; }
+            .site-nav { gap: 0.5rem; }
+            .site-nav a { font-size: 0.8rem; margin: 0 0.2rem; }
+            .site-brand { font-size: 1.2rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="site-shell">
+        <%- include('./header.ejs') %>

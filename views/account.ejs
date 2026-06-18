@@ -1,0 +1,292 @@
+<%- include('partials/head') %>
+
+<main class="ac-page site-wrap">
+  <section class="ac-main">
+    <aside class="ac-left">
+      <article class="ac-profile">
+        <div class="ac-avatar-large">
+          <span style="font-size: 3rem; color: white; font-weight: 800;"><%= data.user.fullName[0] %></span>
+        </div>
+        <h2 style="font-size: 2.2rem; margin-bottom: 0.5rem;"><%= data.user.fullName %></h2>
+        <p class="ac-gold"><%= tierTitleByKey(data.club.tierKey, locale) %></p>
+        <p style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-top: 1rem;">
+          <%= formatMembershipSince(data.user.membershipSince, locale) %>
+        </p>
+      </article>
+
+      <article class="ac-club">
+        <h3 style="font-family: var(--font-sans); font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.9rem; margin-bottom: 2.5rem; color: var(--gold-dark);">
+          <i class="fa-solid fa-music" style="margin-right: 0.6rem; color: var(--gold-primary);"></i><%= pick(locale, "Уровни домбры", "Домбыра деңгейлері") %>
+        </h3>
+        <div class="ac-club-rows">
+          <div>
+            <span><%= pick(locale, "Опыт", "Тәжірибе") %></span>
+            <strong><%= new Intl.NumberFormat(locale === "kk" ? "kk-KZ" : "ru-RU").format(data.club.points) %></strong>
+          </div>
+          <div>
+            <span><%= pick(locale, "Скидка мастера", "Шебер жеңілдігі") %></span>
+            <strong style="color: #27ae60;"><%= data.club.discount %>%</strong>
+          </div>
+        </div>
+        <div class="ac-progress">
+          <span style="width: <%= Math.max(0, Math.min(100, Number(data.club.progress || 0))) %>%"></span>
+        </div>
+        <p style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600; margin-top: 1rem;">
+          <%= data.club.pointsToNext > 0
+            ? pick(
+                locale,
+                `${new Intl.NumberFormat(locale === "kk" ? "kk-KZ" : "ru-RU").format(data.club.pointsToNext)} баллов до следующего уровня`,
+                `Келесі деңгейге ${new Intl.NumberFormat(locale === "kk" ? "kk-KZ" : "ru-RU").format(data.club.pointsToNext)} ұпай қалды`
+              )
+            : pick(locale, "Максимальный уровень достигнут", "Ең жоғары деңгейге жеттіңіз") %>
+        </p>
+      </article>
+    </aside>
+
+    <div class="ac-right">
+      <section class="ac-section">
+        <div class="ac-title-row">
+          <h2><%= pick(locale, "История заказов", "Тапсырыс тарихы") %></h2>
+          <% const lastOrder = data.orders && data.orders.length ? data.orders[0] : null; %>
+          <a
+            href="<%= lastOrder ? ('/tracking?code=DH-' + String(lastOrder.id).padStart(4, '0') + '&contact=' + encodeURIComponent(data.user.email || data.user.phone || '')) : '/tracking' %>"
+            class="btn-ghost"
+            style="padding: 0.8rem 1.5rem; font-size: 0.7rem;"
+          ><%= pick(locale, "Отследить", "Бақылау") %></a>
+        </div>
+
+        <div class="ac-orders">
+          <% if (data.orders.length) { %>
+            <% data.orders.forEach(order => { %>
+              <article class="ac-order-card">
+                <div class="ac-order-icon">🎵</div>
+                <div class="ac-order-body">
+                  <h3 style="font-size: 1.4rem; margin-bottom: 0.3rem;"><%= order.item_title || pick(locale, "Домбыра ручной работы", "Қолмен жасалған домбыра") %></h3>
+                  <p style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">
+                    <%= pick(locale, "Заказ", "Тапсырыс") %> № DH-<%= String(order.id).padStart(4, "0") %> • <%= formatDate(order.created_at, locale) %>
+                  </p>
+                </div>
+                <div class="ac-order-side">
+                  <strong><%= formatKzt(order.total) %></strong>
+                  <span class="admin-badge <%= order.status === 'pending' ? 'badge-pending' : 'badge-shipped' %>" style="margin-top: 0.5rem; display: inline-block;">
+                    <%= statusLabel(order.status, locale) %>
+                  </span>
+                  <a
+                    class="btn-ghost"
+                    style="padding: 0.6rem 1.2rem; font-size: 0.7rem; margin-top: 0.9rem; display: inline-flex; justify-content: center;"
+                    href="/tracking?code=DH-<%= String(order.id).padStart(4, '0') %>&contact=<%= encodeURIComponent(data.user.email || data.user.phone || '') %>"
+                  ><%= pick(locale, "Отследить", "Бақылау") %></a>
+                </div>
+              </article>
+            <% }) %>
+          <% } else { %>
+            <div style="padding: 5rem; text-align: center; background: var(--bg-soft); border-radius: var(--radius-md); color: var(--text-muted); font-weight: 600;">
+              <%= pick(
+                locale,
+                "У вас пока нет заказов.",
+                "Сізде әлі тапсырыстар жоқ."
+              ) %>
+            </div>
+          <% } %>
+        </div>
+      </section>
+
+      <section class="ac-section">
+        <div class="ac-title-row">
+          <h2><%= pick(locale, "Способы оплаты", "Төлем тәсілдері") %></h2>
+          <button type="button" class="btn-ghost" style="padding: 0.8rem 1.5rem; font-size: 0.7rem;" onclick="openPayModal()">
+            <%= pick(locale, "Добавить карту", "Карта қосу") %>
+          </button>
+        </div>
+
+        <div class="ac-pay-grid">
+          <% if (data.paymentMethods && data.paymentMethods.length) { %>
+            <% data.paymentMethods.forEach(pm => { %>
+              <article class="ac-order-card" style="align-items: flex-start;">
+                <div class="ac-order-icon" style="font-size:1.2rem;"><i class="fa-regular fa-credit-card"></i></div>
+                <div class="ac-order-body">
+                  <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:1rem;">
+                    <div>
+                      <div style="font-weight: 900; font-size: 1.15rem;"><%= pm.brand %> •••• <%= pm.last4 %></div>
+                      <div style="color: var(--text-muted); font-weight: 700; margin-top: 0.35rem;">EXP <%= String(pm.exp_month).padStart(2,'0') %>/<%= String(pm.exp_year).slice(-2) %></div>
+                      <% if (pm.holder_name) { %>
+                        <div style="color: var(--text-muted); font-weight: 650; margin-top: 0.35rem;"><%= pm.holder_name %></div>
+                      <% } %>
+                    </div>
+                    <% if (pm.is_default) { %>
+                      <span class="admin-badge" style="background:#dcfce7; color:#166534;"><%= pick(locale, "Основная", "Негізгі") %></span>
+                    <% } %>
+                  </div>
+
+                  <div style="display:flex; gap:0.75rem; margin-top: 1.25rem;">
+                    <% if (!pm.is_default) { %>
+                      <button type="button" class="btn-ghost" style="padding:0.6rem 1rem; font-size:0.7rem;" onclick="setDefaultCard(<%= pm.id %>)"><%= pick(locale, "Сделать основной", "Негізгі ету") %></button>
+                    <% } %>
+                    <button type="button" class="btn-ghost" style="padding:0.6rem 1rem; font-size:0.7rem; border-color:#fceaea; color:#e74c3c;" onclick="deleteCard(<%= pm.id %>)"><%= pick(locale, "Удалить", "Жою") %></button>
+                  </div>
+                </div>
+              </article>
+            <% }) %>
+          <% } else { %>
+            <div style="grid-column: span 2; padding: 5rem; text-align: center; background: var(--bg-soft); border-radius: var(--radius-md); color: var(--text-muted); font-weight: 700;">
+              <%= pick(locale, "Карты пока не добавлены.", "Карталар әлі қосылмаған.") %>
+            </div>
+          <% } %>
+        </div>
+      </section>
+
+      <section class="ac-section">
+        <div class="ac-title-row">
+          <h2><%= pick(locale, "Избранное", "Таңдаулылар") %></h2>
+          <a href="/catalog" class="btn-ghost" style="padding: 0.8rem 1.5rem; font-size: 0.7rem;"><%= pick(locale, "В каталог", "Каталогқа") %></a>
+        </div>
+
+        <div class="ac-favs" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+          <% if (data.favorites.length) { %>
+            <% data.favorites.forEach(item => { %>
+              <article class="ac-order-card" style="align-items: flex-start;">
+                <img src="<%= item.image %>" alt="<%= item.name %>" style="width: 100px; height: 100px; border-radius: var(--radius-sm); object-fit: cover; box-shadow: var(--shadow-soft);" />
+                <div class="ac-order-body">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <h3 style="font-size: 1.2rem;"><%= item.name %></h3>
+                    <button onclick="toggleFav(<%= item.id %>, this)" style="background:none; border:none; color:var(--gold-primary); cursor:pointer; font-size:1.4rem;">
+                      <i class="fa-solid fa-heart"></i>
+                    </button>
+                  </div>
+                  <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;"><%= item.material %></p>
+                  <strong style="font-size: 1.2rem; color: var(--gold-dark); font-family: var(--font-serif);"><%= formatKzt(item.price) %></strong>
+                </div>
+              </article>
+            <% }) %>
+          <% } else { %>
+            <div style="grid-column: span 2; padding: 5rem; text-align: center; background: var(--bg-soft); border-radius: var(--radius-md); color: var(--text-muted); font-weight: 600;">
+              <%= pick(locale, "Список избранного пуст.", "Таңдаулылар тізімі бос.") %>
+            </div>
+          <% } %>
+        </div>
+      </section>
+    </div>
+  </section>
+</main>
+
+<div class="ui-modal" id="pay-modal" aria-hidden="true">
+  <div class="ui-modal-overlay" onclick="closePayModal()"></div>
+  <div class="ui-modal-panel" role="dialog" aria-modal="true">
+    <div class="ui-modal-head">
+      <div style="font-weight: 900; font-size: 1.1rem;"><%= pick(locale, "Добавить карту", "Карта қосу") %></div>
+      <button type="button" class="ui-modal-close" onclick="closePayModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="ui-modal-body">
+      <form id="pay-add-form" class="auth-form" onsubmit="event.preventDefault(); addCard();">
+        <div class="field">
+          <label><%= pick(locale, "Номер карты", "Карта нөмірі") %></label>
+          <input name="cardNumber" inputmode="numeric" autocomplete="cc-number" placeholder="0000 0000 0000 0000" required data-mask="card" maxlength="19" />
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 1.2rem;">
+          <div class="field">
+            <label>MM</label>
+            <input name="expMonth" inputmode="numeric" autocomplete="cc-exp-month" placeholder="12" required maxlength="2" data-mask="digits2" />
+          </div>
+          <div class="field">
+            <label>YY</label>
+            <input name="expYear" inputmode="numeric" autocomplete="cc-exp-year" placeholder="28" required maxlength="2" data-mask="digits2" />
+          </div>
+        </div>
+        <div class="field">
+          <label><%= pick(locale, "Держатель", "Иесі") %></label>
+          <input name="holderName" autocomplete="cc-name" placeholder="ALPAMYS BATYR" />
+        </div>
+        <div style="display:flex; gap: 0.75rem; align-items:center; justify-content: space-between; margin-top: 1rem;">
+          <label style="display:flex; gap:0.6rem; align-items:center; color:var(--text-muted); font-weight:700;">
+            <input type="checkbox" name="makeDefault" checked />
+            <span><%= pick(locale, "Сделать основной", "Негізгі ету") %></span>
+          </label>
+          <button type="submit" class="btn-prime" style="padding: 0.9rem 1.2rem;"><%= pick(locale, "Сохранить", "Сақтау") %></button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+async function toggleFav(productId, btn) {
+    const res = await fetch('/api/favorites/toggle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId })
+    });
+    if (res.ok) {
+        const data = await res.json();
+        if (data.status === 'removed') {
+            const card = btn.closest('.ac-order-card');
+            card.style.opacity = '0';
+            card.style.transform = 'scale(0.9)';
+            setTimeout(() => {
+                card.remove();
+                if (document.querySelectorAll('.ac-order-card').length === 0) {
+                    window.location.reload();
+                }
+            }, 300);
+        }
+    }
+}
+
+function openPayModal() {
+  const m = document.getElementById('pay-modal');
+  if (!m) return;
+  m.classList.add('open');
+  m.setAttribute('aria-hidden', 'false');
+}
+
+function closePayModal() {
+  const m = document.getElementById('pay-modal');
+  if (!m) return;
+  m.classList.remove('open');
+  m.setAttribute('aria-hidden', 'true');
+}
+
+async function addCard() {
+  const form = document.getElementById('pay-add-form');
+  const data = Object.fromEntries(new FormData(form).entries());
+  const expYear = String(data.expYear || '').trim();
+  const normalizedYear = expYear.length === 2 ? ('20' + expYear) : expYear;
+
+  const res = await fetch('/api/account/payment-methods', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      cardNumber: data.cardNumber,
+      expMonth: Number(data.expMonth),
+      expYear: Number(normalizedYear),
+      holderName: data.holderName,
+      makeDefault: Boolean(data.makeDefault)
+    })
+  });
+  const json = await res.json().catch(() => ({}));
+  if (res.ok) {
+    closePayModal();
+    showToast('<%= pick(locale, "Карта добавлена", "Карта қосылды") %>');
+    window.location.reload();
+  } else {
+    showToast(json.error || '<%= pick(locale, "Ошибка", "Қате") %>', 'error');
+  }
+}
+
+async function setDefaultCard(id) {
+  const res = await fetch('/api/account/payment-methods/' + id + '/default', { method: 'POST' });
+  if (res.ok) {
+    window.location.reload();
+  }
+}
+
+async function deleteCard(id) {
+  const ok = confirm('<%= pick(locale, "Удалить карту?", "Картаны жою керек пе?") %>');
+  if (!ok) return;
+  const res = await fetch('/api/account/payment-methods/' + id + '/delete', { method: 'POST' });
+  if (res.ok) {
+    window.location.reload();
+  }
+}
+</script>
+
+<%- include('partials/foot') %>

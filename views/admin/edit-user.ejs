@@ -1,0 +1,74 @@
+<%- include('../partials/head') %>
+
+<main class="admin-page site-wrap">
+  <div class="admin-nav">
+    <a href="/admin/products"><%= pick(locale, "Товары", "Тауарлар") %></a>
+    <a href="/admin/orders"><%= pick(locale, "Заказы", "Тапсырыстар") %></a>
+    <a href="/admin/custom-orders"><%= pick(locale, "Заявки", "Өтінімдер") %></a>
+    <a href="/admin/users" class="active"><%= pick(locale, "Пользователи", "Қолданушылар") %></a>
+  </div>
+
+  <header style="display:flex; justify-content:space-between; align-items:flex-end; gap:2rem; margin-bottom: 3rem;">
+    <div>
+      <h1 style="font-size: 3rem;"><%= pick(locale, "Профиль пользователя", "Қолданушы профилі") %></h1>
+      <p style="color:var(--text-muted); font-weight:650; margin-top:0.75rem;">#<%= userRow.id %> • <%= userRow.created_at %></p>
+    </div>
+    <a class="btn-ghost" href="/admin/users" style="padding:0.8rem 1.5rem; font-size:0.75rem;"><%= pick(locale, "Назад", "Артқа") %></a>
+  </header>
+
+  <section style="max-width: 820px;">
+    <article style="background: white; border-radius: var(--radius-md); box-shadow: var(--shadow-soft); border: 1px solid var(--border-light); padding: 2.5rem;">
+      <form class="auth-form" method="POST" action="/admin/users/save">
+        <input type="hidden" name="id" value="<%= userRow.id %>">
+        <div class="field">
+          <label><%= pick(locale, "Имя", "Аты") %></label>
+          <input name="full_name" value="<%= userRow.full_name %>" required />
+        </div>
+        <div class="field">
+          <label>Email</label>
+          <input type="email" name="email" value="<%= userRow.email %>" required />
+        </div>
+        <div class="field">
+          <label><%= pick(locale, "Телефон", "Телефон") %></label>
+          <input name="phone" value="<%= userRow.phone %>" data-mask="kz-phone" maxlength="18" inputmode="tel" autocomplete="tel" required />
+        </div>
+        <div class="field">
+          <label><%= pick(locale, "Город", "Қала") %></label>
+          <input name="city" value="<%= userRow.city %>" required />
+        </div>
+        <div class="field">
+          <label><%= pick(locale, "Адрес", "Мекенжай") %></label>
+          <input name="address" value="<%= userRow.address %>" required />
+        </div>
+        <div class="field">
+          <label><%= pick(locale, "Роль", "Рөлі") %></label>
+          <select name="role" required>
+            <option value="user" <%= userRow.role === 'user' ? 'selected' : '' %>>user</option>
+            <option value="admin" <%= userRow.role === 'admin' ? 'selected' : '' %>>admin</option>
+          </select>
+        </div>
+
+        <div style="display:flex; gap:1rem; justify-content:flex-end; margin-top: 2rem;">
+          <button type="button" class="btn-ghost" style="border-color:#fceaea; color:#e74c3c; padding:0.9rem 1.3rem;" onclick="deleteUser()"><%= pick(locale, "Удалить", "Жою") %></button>
+          <button class="btn-prime" type="submit" style="padding:0.9rem 1.3rem;"><%= pick(locale, "Сохранить", "Сақтау") %></button>
+        </div>
+      </form>
+    </article>
+  </section>
+</main>
+
+<script>
+async function deleteUser() {
+  const ok = confirm('<%= pick(locale, "Удалить пользователя?", "Қолданушыны жою керек пе?") %>');
+  if (!ok) return;
+  const res = await fetch('/admin/users/<%= userRow.id %>/delete', { method: 'POST' });
+  const json = await res.json().catch(() => ({}));
+  if (res.ok) {
+    window.location.href = '/admin/users';
+  } else {
+    showToast(json.error || 'Error', 'error');
+  }
+}
+</script>
+
+<%- include('../partials/foot') %>

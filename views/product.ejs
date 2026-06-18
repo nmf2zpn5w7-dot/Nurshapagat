@@ -1,0 +1,245 @@
+<%- include('partials/head') %>
+
+<main class="pd-page site-wrap">
+  <section class="pd-main">
+    <div class="pd-grid">
+      <div>
+        <div class="pd-main-image-wrap">
+          <img src="<%= gallery[0] %>" alt="<%= product.name %>" class="pd-main-image" />
+        </div>
+        <div class="pd-thumbs">
+          <% gallery.forEach((src, index) => { %>
+            <div class="pd-thumb <%= index === 0 ? 'active' : '' %>">
+              <img src="<%= src %>" alt="<%= product.name %> <%= index + 1 %>" />
+            </div>
+          <% }) %>
+        </div>
+      </div>
+
+      <article class="pd-content">
+        <div class="pd-head-row">
+          <span><%= pick(locale, "Ограниченная серия", "Шектеулі серия") %></span>
+          <div style="color: var(--gold-primary); letter-spacing: 0.2em; font-size: 0.8rem;">★★★★★</div>
+        </div>
+
+        <h1><%= product.name %></h1>
+        <p class="pd-price"><%= formatKzt(product.price) %></p>
+
+        <section class="pd-audio-box">
+          <h3 style="font-size: 1.2rem; margin-bottom: 1.5rem;"><%= pick(locale, "♪ Голос инструмента: Исполнение кюя", "♪ Аспап үні: күй орындауы") %></h3>
+          <div class="pd-audio-row">
+            <button type="button" id="audio-play-btn" onclick="toggleAudio()">
+              <i class="fa-solid fa-play"></i>
+            </button>
+            <div class="pd-progress">
+              <div class="pd-progress-fill" id="audio-progress"></div>
+            </div>
+            <small id="audio-time" style="font-weight: 700; color: var(--text-muted);">00:00 / 00:00</small>
+            <audio id="pd-audio-file" src="<%= product.audio_url || '' %>" preload="metadata"></audio>
+          </div>
+          <p style="font-size: 0.9rem; color: var(--text-muted); font-style: italic;">
+            <%= pick(locale, "\"Послушайте резонансный, теплый тембр этого конкретного инструмента, записанный в студии мастера.\"", "\"Шебер студиясында жазылған осы аспаптың қоңыр, жылы тембрін тыңдаңыз.\"") %>
+          </p>
+        </section>
+
+        <p class="pd-description" style="font-size: 1.1rem; margin-bottom: 3rem; color: var(--text-muted);">
+          <%= pick(locale, "Изготовлено вручную мастером", "Қолмен жасады") %> <strong><%= product.master_name %></strong> <%= pick(locale, "в течение", "шамамен") %> <strong><%= product.craftsmanship_hours %></strong> <%= pick(locale, "часов.", "сағатта.") %> 
+          <%= product.long_description %>
+        </p>
+
+        <div class="pd-props-grid">
+          <div>
+            <span><%= pick(locale, "Тип дерева", "Ағаш түрі") %></span>
+            <strong><%= product.material %></strong>
+          </div>
+          <div>
+            <span><%= pick(locale, "Шебер", "Мастер") %></span>
+            <strong><%= product.master_name %></strong>
+          </div>
+          <div>
+            <span><%= pick(locale, "Струны", "Ішектер") %></span>
+            <strong><%= pick(locale, "Профессиональные", "Кәсіби ішектер") %></strong>
+          </div>
+          <div>
+            <span><%= pick(locale, "Инкрустация", "Көркемдеу") %></span>
+            <strong><%= pick(locale, "Верблюжья кость", "Түйе сүйегі") %></strong>
+          </div>
+        </div>
+
+        <% if (!user || user.role !== 'admin') { %>
+          <div class="pd-cta-row">
+            <button class="pd-buy-main" onclick="addToCart(<%= JSON.stringify({id: product.id, name: product.name, price: product.price, image: product.image}) %>)">
+              <%= locale === 'kk' ? 'Себетке' : 'В корзину' %>
+            </button>
+            <button onclick="toggleFav(<%= product.id %>, this)" class="pd-buy-outline">
+              <i class="fa-regular fa-heart" style="margin-right: 0.8rem;"></i><%= pick(locale, "В избранное", "Таңдаулыға") %>
+            </button>
+          </div>
+        <% } %>
+      </article>
+    </div>
+
+    <section class="pd-specs">
+      <div style="text-align: center; margin-bottom: 6rem;">
+        <span style="color: var(--gold-primary); font-weight: 800; text-transform: uppercase; letter-spacing: 0.3em; font-size: 0.8rem;"><%= pick(locale, "Детализация", "Мәлімет") %></span>
+        <h2 style="font-size: 3.5rem; margin-top: 1rem;"><%= pick(locale, "Характеристики мастерства", "Шеберлік сипаттамалары") %></h2>
+      </div>
+
+      <div class="pd-spec-grid">
+        <article class="pd-spec-card">
+          <h4><%= pick(locale, "⚒ Конструкция", "⚒ Құрылым") %></h4>
+          <ul>
+            <li><span><%= pick(locale, "Форма корпуса", "Корпус пішіні") %></span><strong><%= pick(locale, "Классическая", "Классикалық") %></strong></li>
+            <li><span><%= pick(locale, "Соединение", "Жалғауы") %></span><strong><%= pick(locale, "Ласточкин хвост", "Қарлығаш құйрығы") %></strong></li>
+            <li><span><%= pick(locale, "Покрытие", "Қаптама") %></span><strong><%= pick(locale, "Натуральный шеллак", "Табиғи шеллак") %></strong></li>
+            <li><span><%= pick(locale, "Голосник", "Дыбыс тесігі") %></span><strong><%= pick(locale, "Традиционный", "Дәстүрлі") %></strong></li>
+          </ul>
+        </article>
+
+        <article class="pd-spec-card">
+          <h4><%= pick(locale, "⌖ Размеры", "⌖ Өлшемдері") %></h4>
+          <ul>
+            <li><span><%= pick(locale, "Общая длина", "Жалпы ұзындығы") %></span><strong>980 мм</strong></li>
+            <li><span><%= pick(locale, "Длина мензуры", "Мензура ұзындығы") %></span><strong>640 мм</strong></li>
+            <li><span><%= pick(locale, "Лады", "Пернелер") %></span><strong>19</strong></li>
+            <li><span><%= pick(locale, "Вес", "Салмақ") %></span><strong>1.2 кг</strong></li>
+          </ul>
+        </article>
+
+        <article class="pd-spec-card">
+          <h4><%= pick(locale, "☞ О мастере", "☞ Шебер туралы") %></h4>
+          <ul>
+            <li><span><%= pick(locale, "Опыт работы", "Тәжірибе") %></span><strong>25+ лет</strong></li>
+            <li><span><%= pick(locale, "Локация", "Мекені") %></span><strong><%= product.city %></strong></li>
+            <li><span><%= pick(locale, "Преемственность", "Сабақтастық") %></span><strong>3-е поколение</strong></li>
+            <li><span><%= pick(locale, "Гарантия", "Кепілдік") %></span><strong>Пожизненная</strong></li>
+          </ul>
+        </article>
+      </div>
+    </section>
+  </section>
+</main>
+
+<script>
+function addToCart(product) {
+    let cart = JSON.parse(localStorage.getItem('aspap-cart-v1') || '[]');
+    const existing = cart.find(item => item.id === product.id);
+    if (existing) {
+        existing.qty += 1;
+    } else {
+        cart.push({...product, qty: 1});
+    }
+    localStorage.setItem('aspap-cart-v1', JSON.stringify(cart));
+    updateCartCount();
+    showToast('<%= pick(locale, "Товар добавлен в корзину", "Тауар себетке қосылды") %>');
+}
+
+async function toggleFav(productId, btn) {
+    <% if (!user) { %>
+        window.location.href = '/login?next=' + encodeURIComponent(window.location.pathname);
+        return;
+    <% } %>
+    const res = await fetch('/api/favorites/toggle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId })
+    });
+    if (res.ok) {
+        const data = await res.json();
+        const icon = btn.querySelector('i');
+        if (data.status === 'added') {
+            icon.classList.replace('fa-regular', 'fa-solid');
+        } else {
+            icon.classList.replace('fa-solid', 'fa-regular');
+        }
+        showToast(data.status === 'added' ? 
+            '<%= pick(locale, "Добавлено в избранное", "Таңдаулыларға қосылды") %>' : 
+            '<%= pick(locale, "Удалено из избранного", "Таңдаулылардан алынды") %>'
+        );
+    }
+}
+
+function updateCartCount() {
+    let cart = JSON.parse(localStorage.getItem('aspap-cart-v1') || '[]');
+    const total = cart.reduce((sum, item) => sum + item.qty, 0);
+    const pill = document.getElementById('cart-count');
+    if (pill) pill.textContent = total;
+}
+
+document.querySelectorAll('.pd-thumb').forEach((thumb, idx) => {
+    thumb.addEventListener('click', () => {
+        document.querySelector('.pd-main-image').src = thumb.querySelector('img').src;
+        document.querySelectorAll('.pd-thumb').forEach(t => t.classList.remove('active'));
+        thumb.classList.add('active');
+    });
+});
+
+document.addEventListener('DOMContentLoaded', updateCartCount);
+
+const audio = document.getElementById('pd-audio-file');
+const playBtn = document.getElementById('audio-play-btn');
+const progressFill = document.getElementById('audio-progress');
+const timeLabel = document.getElementById('audio-time');
+
+function formatTime(seconds) {
+    const min = Math.floor(seconds / 60);
+    const sec = Math.floor(seconds % 60);
+    return `${min}:${sec.toString().padStart(2, '0')}`;
+}
+
+function toggleAudio() {
+    const rawSrc = audio.getAttribute('src') || '';
+    console.log("Attempting to play local audio from source:", rawSrc);
+    
+    if (!rawSrc || rawSrc.includes('undefined')) {
+        showToast('<%= pick(locale, "Звук для этого товара еще не загружен", "Бұл тауар үшін дыбыс әлі жүктелмеген") %>', "error");
+        return;
+    }
+
+    if (audio.paused) {
+        playBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+        
+        // Ensure the audio source is correctly set
+        const currentSrc = audio.src;
+        if (!currentSrc.startsWith('http') && !currentSrc.startsWith('/')) {
+             audio.src = '/' + currentSrc;
+        }
+
+        audio.play().then(() => {
+            console.log("Product audio started");
+            playBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+        }).catch(e => {
+            console.error("Product audio play failed:", e);
+            playBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
+            let msg = '<%= pick(locale, "Ошибка воспроизведения", "Дыбысты ойнату қатесі") %>';
+            if (e.name === 'NotAllowedError') msg = '<%= pick(locale, "Нажмите еще раз для активации звука", "Дыбысты қосу үшін қайта басыңыз") %>';
+            showToast(msg, "error");
+        });
+    } else {
+        audio.pause();
+        playBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
+    }
+}
+
+audio.addEventListener('error', (e) => {
+    console.error("Audio file error event:", e);
+    showToast('<%= pick(locale, "Файл звука не найден или недоступен", "Дыбыс файлы табылмады немесе қолжетімсіз") %>', "error");
+});
+
+audio.addEventListener('timeupdate', () => {
+    const percent = (audio.currentTime / audio.duration) * 100;
+    progressFill.style.width = percent + '%';
+    timeLabel.textContent = `${formatTime(audio.currentTime)} / ${formatTime(audio.duration || 0)}`;
+});
+
+audio.addEventListener('loadedmetadata', () => {
+    timeLabel.textContent = `0:00 / ${formatTime(audio.duration)}`;
+});
+
+audio.addEventListener('ended', () => {
+    playBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
+    progressFill.style.width = '0%';
+});
+</script>
+
+<%- include('partials/foot') %>

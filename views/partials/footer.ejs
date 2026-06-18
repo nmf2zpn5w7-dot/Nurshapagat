@@ -1,0 +1,64 @@
+<footer class="site-footer">
+  <div class="site-wrap">
+    <div class="site-footer-inner">
+      <div class="site-footer-brand">
+        <a href="/" class="site-brand" style="font-size: 2.5rem; margin-bottom: 2rem; display: block;">
+          <span>♪</span>Aspap.kz
+        </a>
+        <p style="line-height: 1.8; margin-bottom: 3rem;">
+          <%= pick(
+            locale,
+            "Хранители кочевого наследия. Мы создаем инструменты, которые передают душу казахской степи через поколения.",
+            "Көшпелі мұраның сақтаушылары. Біз қазақ даласының жанын ұрпақтан ұрпаққа жеткізетін аспаптар жасаймыз."
+          ) %>
+        </p>
+        <div style="display: flex; gap: 1.5rem; font-size: 1.2rem;">
+          <a href="#"><i class="fa-brands fa-instagram"></i></a>
+          <a href="#"><i class="fa-brands fa-youtube"></i></a>
+          <a href="#"><i class="fa-brands fa-facebook"></i></a>
+        </div>
+      </div>
+
+      <div>
+        <h4><%= pick(locale, "Навигация", "Бағдарлау") %></h4>
+        <ul>
+          <li><a href="/catalog"><%= pick(locale, "Каталог", "Каталог") %></a></li>
+          <li><a href="/workshop"><%= pick(locale, "Мастерская", "Шеберхана") %></a></li>
+          <li><a href="/tracking"><%= pick(locale, "Отслеживание", "Бақылау") %></a></li>
+          <li><a href="/account"><%= pick(locale, "Личный кабинет", "Жеке кабинет") %></a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4><%= pick(locale, "Поддержка", "Қолдау") %></h4>
+        <ul>
+          <li><a href="#"><%= pick(locale, "Доставка и оплата", "Жеткізу және төлеу") %></a></li>
+          <li><a href="#"><%= pick(locale, "Гарантия", "Кепілдік") %></a></li>
+          <li><a href="#"><%= pick(locale, "FAQ", "Жиі сұрақтар") %></a></li>
+          <li><a href="#"><%= pick(locale, "Контакты", "Контактілер") %></a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4><%= pick(locale, "Мастерская", "Шеберхана") %></h4>
+        <p style="font-size: 0.9rem; margin-bottom: 1rem;">
+          <%= pick(locale, "г. Алматы, пр. Абая 150", "Алматы қ., Абай даңғылы 150") %>
+        </p>
+        <p style="font-size: 0.9rem; margin-bottom: 1rem;">
+          +7 (777) 123-45-67
+        </p>
+        <p style="font-size: 0.9rem;">
+          info@aspap.kz
+        </p>
+      </div>
+    </div>
+
+    <div class="site-footer-bottom">
+      <p>&copy; 2026 Aspap.kz. <%= pick(locale, "Все права защищены.", "Барлық құқықтар қорғалған.") %></p>
+      <div style="display: flex; gap: 2rem;">
+        <a href="#"><%= pick(locale, "Конфиденциальность", "Құпиялылық") %></a>
+        <a href="#"><%= pick(locale, "Публичная оферта", "Қоғамдық оферта") %></a>
+      </div>
+    </div>
+  </div>
+</footer>

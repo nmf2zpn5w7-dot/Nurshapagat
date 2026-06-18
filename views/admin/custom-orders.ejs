@@ -1,0 +1,117 @@
+<%- include('../partials/head') %>
+
+<main class="admin-page site-wrap">
+  <div class="admin-nav">
+    <a href="/admin/products"><%= pick(locale, "Товары", "Тауарлар") %></a>
+    <a href="/admin/orders"><%= pick(locale, "Заказы", "Тапсырыстар") %></a>
+    <a href="/admin/custom-orders" class="active"><%= pick(locale, "Заявки", "Өтінімдер") %></a>
+    <a href="/admin/users"><%= pick(locale, "Пользователи", "Қолданушылар") %></a>
+  </div>
+
+  <header style="display:flex; justify-content:space-between; align-items:flex-end; gap:2rem; margin-bottom: 4rem;">
+    <div>
+      <h1 style="font-size: 3rem;"><%= pick(locale, "Заявки мастерской", "Шеберхана өтінімдері") %></h1>
+      <p style="color:var(--text-muted); font-weight:650; margin-top:0.75rem;"><%= pick(locale, "Индивидуальные заказы на изготовление", "Жеке жасау тапсырыстары") %></p>
+    </div>
+    <a class="btn-ghost" href="/workshop" style="padding:0.8rem 1.5rem; font-size:0.75rem;"><%= pick(locale, "Страница мастерской", "Шеберхана беті") %></a>
+  </header>
+
+  <div style="display:grid; gap: 1.25rem;">
+    <% if (!orders.length) { %>
+      <div style="background: white; border-radius: var(--radius-md); box-shadow: var(--shadow-soft); border: 1px solid var(--border-light); padding: 3rem; color: var(--text-muted); font-weight: 700;">
+        <%= pick(locale, "Пока нет заявок.", "Әзірге өтінімдер жоқ.") %>
+      </div>
+    <% } %>
+
+    <% orders.forEach(o => { const specs = safeParse(o.specs_json); %>
+      <article style="background: white; border-radius: var(--radius-md); box-shadow: var(--shadow-soft); border: 1px solid var(--border-light); padding: 2rem;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap: 2rem;">
+          <div style="flex:1;">
+            <div style="display:flex; gap: 1rem; align-items:center; margin-bottom: 0.8rem;">
+              <div style="font-weight: 900; color: var(--text-muted);">#<%= o.id %></div>
+              <span class="admin-badge" style="background: var(--bg-soft); color: var(--text-muted);"><%= o.status %></span>
+              <span style="color: var(--text-muted); font-weight:700; font-size:0.85rem;"><%= o.created_at %></span>
+            </div>
+            <div style="font-weight: 900; font-size: 1.2rem;"><%= o.customer_name %></div>
+            <div style="color: var(--text-muted); font-weight:700; margin-top:0.25rem;"><%= o.phone %> • <%= o.email || "—" %> • <%= o.city %></div>
+          </div>
+
+          <div style="display:flex; gap: 0.75rem; align-items:center;">
+            <select onchange="updateCustomOrder(<%= o.id %>, { status: this.value })" style="padding: 0.55rem; border-radius: var(--radius-sm); border: 1px solid var(--border-light); font-size: 0.85rem; font-weight: 800;">
+              <% const stOps = [
+                { id: 'new', title: pick(locale, 'Новая заявка', 'Жаңа өтінім') },
+                { id: 'in_review', title: pick(locale, 'На рассмотрении', 'Қаралуда') },
+                { id: 'accepted', title: pick(locale, 'Принято', 'Қабылданды') },
+                { id: 'in_progress', title: pick(locale, 'В работе', 'Жасалуда') },
+                { id: 'done', title: pick(locale, 'Готово', 'Дайын') },
+                { id: 'canceled', title: pick(locale, 'Отклонено', 'Қабылданбады') }
+              ]; %>
+              <% stOps.forEach(op => { %>
+                <option value="<%= op.id %>" <%= o.status === op.id ? 'selected' : '' %>><%= op.title %></option>
+              <% }) %>
+            </select>
+            <button class="btn-ghost" type="button" style="padding:0.55rem 1rem; font-size:0.75rem; border-color:#fceaea; color:#e74c3c;" onclick="deleteCustomOrder(<%= o.id %>)">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+        </div>
+
+        <div style="margin-top: 1.5rem; display:grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div style="background: var(--bg-soft); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem;">
+            <div style="font-weight: 900; color: var(--gold-dark); margin-bottom: 0.75rem;"><%= pick(locale, "Параметры", "Параметрлер") %></div>
+            <div style="display:grid; gap:0.5rem; color: var(--text-muted); font-weight:700;">
+              <div><%= pick(locale, "Струны", "Ішек") %>: <strong style="color:var(--bg-deep)"><%= specs.stringCount || "—" %></strong></div>
+              <div><%= pick(locale, "Рука", "Қол") %>: <strong style="color:var(--bg-deep)"><%= specs.handedness || "—" %></strong></div>
+              <div><%= pick(locale, "Мензура", "Мензура") %>: <strong style="color:var(--bg-deep)"><%= specs.scaleLength || "—" %></strong></div>
+              <div><%= pick(locale, "Дерево", "Ағаш") %>: <strong style="color:var(--bg-deep)"><%= specs.woodType || "—" %></strong></div>
+              <div><%= pick(locale, "Корпус", "Корпус") %>: <strong style="color:var(--bg-deep)"><%= specs.bodyStyle || "—" %></strong></div>
+              <div><%= pick(locale, "Декор", "Әшекей") %>: <strong style="color:var(--bg-deep)"><%= specs.decoration || "—" %></strong></div>
+              <div><%= pick(locale, "Покрытие", "Қаптама") %>: <strong style="color:var(--bg-deep)"><%= specs.finish || "—" %></strong></div>
+              <div><%= pick(locale, "Срок", "Мерзім") %>: <strong style="color:var(--bg-deep)"><%= specs.deadline || "—" %></strong></div>
+            </div>
+          </div>
+
+          <div style="background: var(--bg-soft); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem;">
+            <div style="font-weight: 900; color: var(--gold-dark); margin-bottom: 0.75rem;"><%= pick(locale, "Контакт и бюджет", "Байланыс және бюджет") %></div>
+            <div style="display:grid; gap:0.5rem; color: var(--text-muted); font-weight:700;">
+              <div><%= pick(locale, "Бюджет", "Бюджет") %>: <strong style="color:var(--bg-deep)"><%= formatKzt(Number(specs.budget || 0)) %></strong></div>
+              <div><%= pick(locale, "Связь", "Байланыс") %>: <strong style="color:var(--bg-deep)"><%= specs.contactMethod || "—" %></strong></div>
+              <div><%= pick(locale, "Кейс", "Кейс") %>: <strong style="color:var(--bg-deep)"><%= specs.caseIncluded || "—" %></strong></div>
+            </div>
+            <% if (specs.notes) { %>
+              <div style="margin-top: 1rem; color: var(--text-muted); font-weight:650; line-height:1.6;"><%= specs.notes %></div>
+            <% } %>
+          </div>
+        </div>
+      </article>
+    <% }) %>
+  </div>
+</main>
+
+<script>
+async function updateCustomOrder(id, patch) {
+  const res = await fetch('/admin/custom-orders/update', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id, ...patch })
+  });
+  if (res.ok) {
+    showToast('<%= pick(locale, "Обновлено", "Жаңартылды") %>');
+  } else {
+    const data = await res.json().catch(() => ({}));
+    showToast(data.error || 'Error', 'error');
+  }
+}
+
+async function deleteCustomOrder(id) {
+  const ok = confirm('<%= pick(locale, "Удалить заявку?", "Өтінімді жою керек пе?") %>');
+  if (!ok) return;
+  const res = await fetch('/admin/custom-orders/' + id + '/delete', { method: 'POST' });
+  if (res.ok) {
+    showToast('<%= pick(locale, "Удалено", "Жойылды") %>');
+    window.location.reload();
+  }
+}
+</script>
+
+<%- include('../partials/foot') %>

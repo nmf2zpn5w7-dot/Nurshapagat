@@ -1,0 +1,40 @@
+<%- include('partials/head') %>
+
+<main class="auth-page">
+  <section class="site-wrap auth-wrap">
+    <article class="auth-card">
+      <div class="auth-mark">
+        <span class="auth-mark-note">♪</span>
+        <span class="auth-mark-name">Aspap.kz</span>
+      </div>
+      <h1><%= pick(locale, "Вход в аккаунт", "Аккаунтқа кіру") %></h1>
+      <p><%= pick(locale, "Введите email и пароль, чтобы открыть личный кабинет.", "Жеке кабинетке кіру үшін email мен құпиясөзді енгізіңіз.") %></p>
+
+      <form class="auth-form" method="POST" action="/login<%= path !== '/login' ? '?next=' + path : '' %>">
+        <div class="field">
+          <label>Email</label>
+          <input type="email" name="email" required placeholder="example@mail.kz" />
+        </div>
+        <div class="field">
+          <label><%= pick(locale, "Пароль", "Құпиясөз") %></label>
+          <input type="password" name="password" required placeholder="••••••••" />
+        </div>
+        
+        <% if (error) { %>
+          <div class="auth-error"><%= error %></div>
+        <% } %>
+
+        <button type="submit" class="auth-btn">
+          <%= pick(locale, "Войти", "Кіру") %>
+        </button>
+      </form>
+
+      <div class="auth-switch">
+        <span><%= pick(locale, "Нет аккаунта?", "Аккаунт жоқ па?") %></span>
+        <a href="/register"><%= pick(locale, "Создать аккаунт", "Аккаунт ашу") %></a>
+      </div>
+    </article>
+  </section>
+</main>
+
+<%- include('partials/foot') %>
